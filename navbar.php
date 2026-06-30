@@ -4,52 +4,52 @@ $rol = kullanici_rol();
 ?>
 <nav class="navbar">
     <div class="navbar-inner">
-        <a href="<?php echo $rol === 'doktor' ? 'doktor_panel.php' : 'anasayfa.php'; ?>" class="navbar-brand">
+        <a href="<?php echo $rol === 'doktor' ? 'doktor_panel.php' : ($rol === 'admin' ? 'admin_panel.php' : 'anasayfa.php'); ?>" class="navbar-brand">
             <span class="brand-icon">🏥</span>
-            <span class="brand-text">Hastane Otomasyonu</span>
+            <span class="brand-text"><?php echo __('site_title'); ?></span>
         </a>
         <div class="navbar-menu">
             <?php if ($rol === 'admin'): ?>
             <a href="admin_panel.php" class="nav-link <?php echo $current_page === 'admin_panel.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">🔧</span> Admin Paneli
+                <span class="nav-icon">🔧</span> <?php echo __('admin_panel'); ?>
             </a>
-            <a href="anasayfa.php" class="nav-link <?php echo $current_page === 'anasayfa.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">📋</span> Randevu Al
+            <a href="rapor.php" class="nav-link <?php echo $current_page === 'rapor.php' ? 'active' : ''; ?>">
+                <span class="nav-icon">📊</span> <?php echo __('rapor'); ?>
             </a>
-            <a href="randevu.php" class="nav-link <?php echo $current_page === 'randevu.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">📅</span> Randevularım
+            <a href="sira.php" class="nav-link <?php echo $current_page === 'sira.php' ? 'active' : ''; ?>">
+                <span class="nav-icon">🔢</span> <?php echo __('sira_listesi'); ?>
             </a>
             <a href="hesap.php" class="nav-link <?php echo $current_page === 'hesap.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">👤</span> Hesabım
+                <span class="nav-icon">👤</span> <?php echo __('hesabim'); ?>
             </a>
             <?php elseif ($rol === 'hasta'): ?>
             <a href="anasayfa.php" class="nav-link <?php echo $current_page === 'anasayfa.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">📋</span> Randevu Al
+                <span class="nav-icon">📋</span> <?php echo __('randevu_al'); ?>
             </a>
             <a href="randevu.php" class="nav-link <?php echo $current_page === 'randevu.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">📅</span> Randevularım
+                <span class="nav-icon">📅</span> <?php echo __('randevularim'); ?>
             </a>
             <a href="sira.php" class="nav-link <?php echo $current_page === 'sira.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">🔢</span> Sıram
+                <span class="nav-icon">🔢</span> <?php echo __('siram'); ?>
             </a>
             <a href="rapor.php" class="nav-link <?php echo $current_page === 'rapor.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">📊</span> Rapor
+                <span class="nav-icon">📊</span> <?php echo __('rapor'); ?>
             </a>
             <a href="hesap.php" class="nav-link <?php echo $current_page === 'hesap.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">👤</span> Hesabım
+                <span class="nav-icon">👤</span> <?php echo __('hesabim'); ?>
             </a>
             <?php elseif ($rol === 'doktor'): ?>
             <a href="doktor_panel.php" class="nav-link <?php echo $current_page === 'doktor_panel.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">👥</span> Hasta Randevularım
+                <span class="nav-icon">👥</span> <?php echo __('hasta_randevularim'); ?>
             </a>
             <a href="sira.php" class="nav-link <?php echo $current_page === 'sira.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">🔢</span> Sıra Listesi
+                <span class="nav-icon">🔢</span> <?php echo __('sira_listesi'); ?>
             </a>
             <a href="rapor.php" class="nav-link <?php echo $current_page === 'rapor.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">📊</span> Rapor
+                <span class="nav-icon">📊</span> <?php echo __('rapor'); ?>
             </a>
             <a href="hesap.php" class="nav-link <?php echo $current_page === 'hesap.php' ? 'active' : ''; ?>">
-                <span class="nav-icon">👤</span> Profilim
+                <span class="nav-icon">👤</span> <?php echo __('profilim'); ?>
             </a>
             <?php endif; ?>
         </div>

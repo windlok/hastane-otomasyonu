@@ -154,7 +154,8 @@ function mail_gonder($to, $konu, $mesaj) {
 }
 
 // Dil desteği
-$dil = isset($_COOKIE['dil']) ? $_COOKIE['dil'] : 'tr';
+global $lang;
+$dil = isset($_COOKIE['dil']) && in_array($_COOKIE['dil'], ['tr','en'], true) ? $_COOKIE['dil'] : 'tr';
 $dil_dosyasi = __DIR__ . "/lang/$dil.php";
 if (file_exists($dil_dosyasi)) {
     include $dil_dosyasi;
@@ -164,7 +165,10 @@ if (file_exists($dil_dosyasi)) {
 
 function __($key) {
     global $lang;
-    return $lang[$key] ?? $key;
+    if (isset($lang[$key])) {
+        return $lang[$key];
+    }
+    return $key;
 }
 
 function musait_saatler(PDO $db, int $doktor_id, string $tarih) {
