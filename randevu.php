@@ -89,18 +89,21 @@ try {
             </div>
             
             <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Hastane</th>
-                            <th>Klinik</th>
-                            <th>Doktor</th>
-                            <th>İl</th>
-                            <th>Tarih</th>
-                            <th>Saat</th>
-                            <th style="width: 100px; text-align: center;">İşlem</th>
-                        </tr>
-                    </thead>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hastane</th>
+                                <th>Klinik</th>
+                                <th>Doktor</th>
+                                <th>İl</th>
+                                <th>Tarih</th>
+                                <th>Saat</th>
+                                <th>Durum</th>
+                                <th>Not</th>
+                                <th>Reçete</th>
+                                <th style="width: 140px; text-align: center;">İşlem</th>
+                            </tr>
+                        </thead>
                     <tbody>
                         <?php
                         // Randevuları listele
@@ -109,18 +112,41 @@ try {
                             $sorgu->execute([$kullanici['kullanici_id']]);
                             
                             if ($sorgu->rowCount() == 0) {
-                                echo "<tr><td colspan='7' class='empty-state'>
+                                echo "<tr><td colspan='9' class='empty-state'>
                                     <span class='empty-icon'>📅</span>
                                     <p>Henüz randevunuz bulunmamaktadır.</p>
                                 </td></tr>";
                             }
-                            
+
                             while ($randevu = $sorgu->fetch(PDO::FETCH_ASSOC)) {
                                 $tarih_format = date('d.m.Y', strtotime($randevu['randevu_tarih']));
                                 $saat_format = $randevu['randevu_saat'] ? date('H:i', strtotime($randevu['randevu_saat'])) : '-';
                                 $randevu_zamani = strtotime($randevu['randevu_tarih'] . ' ' . ($randevu['randevu_saat'] ?? '23:59:59'));
                                 $is_future = $randevu_zamani >= time();
-                                
+
+                                // Not var mı?
+                                $not_say = $db->prepare("SELECT COUNT(*) FROM randevu_not WHERE randevu_id = ?");
+                                $not_say->execute([$randevu['randevu_id']]);
+                                $not_var = $not_say->fetchColumn() > 0;
+
+                                // Reçete var mı?
+                                $recete_say = $db->prepare("SELECT recete_id FROM recete WHERE randevu_id = ? ORDER BY olusturma_tarihi DESC LIMIT 1");
+                                $recete_say->execute([$randevu['randevu_id']]);
+                                $recete_row = $recete_say->fetch(PDO::FETCH_ASSOC);
+                                $recete_var = $recete_row !== false;
+
+                                $durum = $randevu['durum'] ?? 'aktif';
+                                if ($durum === 'iptal') {
+                                    $durum_renk = '#e74c3c';
+                                    $durum_text = 'İptal Edildi';
+                                } elseif (!$is_future) {
+                                    $durum_renk = 'var(--text-muted)';
+                                    $durum_text = 'Gerçekleşti';
+                                } else {
+                                    $durum_renk = 'var(--success)';
+                                    $durum_text = 'Aktif';
+                                }
+
                                 echo "<tr>";
                                 echo "<td><strong>" . htmlspecialchars($randevu['randevu_hastane']) . "</strong></td>";
                                 echo "<td>" . htmlspecialchars($randevu['randevu_klinik']) . "</td>";
@@ -128,15 +154,21 @@ try {
                                 echo "<td>" . htmlspecialchars($randevu['randevu_sehir']) . "</td>";
                                 echo "<td>" . $tarih_format . "</td>";
                                 echo "<td><span class='slot-badge active'>" . $saat_format . "</span></td>";
+                                echo "<td style='text-align: center;'><span style='color: " . $durum_renk . "; font-weight: 600; font-size: 13px;'>" . $durum_text . "</span></td>";
+                                echo "<td style='text-align: center;'>" . ($not_var ? "<a href='randevu_not.php?randevu_id=" . $randevu['randevu_id'] . "' style='color:var(--primary);font-size:12px;'>📋 Gör</a>" : "<span style='color:var(--text-muted);font-size:11px;'>-</span>") . "</td>";
+                                echo "<td style='text-align: center;'>" . ($recete_var ? "<a href='recete_goruntule.php?recete_id=" . $recete_row['recete_id'] . "' style='color:var(--accent);font-size:12px;'>💊 Gör</a>" : "<span style='color:var(--text-muted);font-size:11px;'>-</span>") . "</td>";
                                 echo "<td style='text-align: center;'>";
-                                if ($is_future) {
+                                if ($is_future && $durum === 'aktif') {
+                                    echo "<div style='display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;'>";
+                                    echo "<a href='anasayfa.php?duzenle=" . $randevu['randevu_id'] . "' class='btn btn-primary' style='padding: 6px 14px; font-size: 12px;'>Düzenle</a>";
                                     echo "<form action='islem.php' method='post' style='display:inline;' onsubmit='return confirm(\"Randevunuzu iptal etmek istediğinize emin misiniz?\")'>";
                                     echo "<input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>";
                                     echo "<input type='hidden' name='randevu_sil_id' value='" . $randevu['randevu_id'] . "'>";
-                                    echo "<button type='submit' name='randevu_sil' class='btn btn-danger'>İptal Et</button>";
+                                    echo "<button type='submit' name='randevu_sil' class='btn btn-danger' style='padding: 6px 14px; font-size: 12px;'>İptal</button>";
                                     echo "</form>";
+                                    echo "</div>";
                                 } else {
-                                    echo "<span style='color: var(--text-muted); font-size: 13px; font-weight: 500;'>Gerçekleşti</span>";
+                                    echo "<span style='color: var(--text-muted); font-size: 13px; font-weight: 500;'>-</span>";
                                 }
                                 echo "</td>";
                                 echo "</tr>";

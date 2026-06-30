@@ -1,0 +1,1 @@
+ALTER TABLE randevu ADD COLUMN sira_no INT DEFAULT NULL AFTER durum;

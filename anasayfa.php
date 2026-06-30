@@ -2,6 +2,36 @@
 include 'header.php';
 hasta_kontrol();
 
+$duzenle_mode = false;
+$duzenle_row = null;
+
+if (isset($_GET['duzenle'])) {
+    $duzenle_id = intval($_GET['duzenle']);
+    try {
+        $k_id = $db->prepare('SELECT kullanici_id FROM kullanici WHERE kullanici_tc = ?');
+        $k_id->execute([$_SESSION['kullanici_tc']]);
+        $kullanici = $k_id->fetch(PDO::FETCH_ASSOC);
+        if ($kullanici) {
+            $sorgu = $db->prepare("SELECT * FROM randevu WHERE randevu_id = ? AND kullanici_id = ? AND durum = 'aktif'");
+            $sorgu->execute([$duzenle_id, $kullanici['kullanici_id']]);
+            $duzenle_row = $sorgu->fetch(PDO::FETCH_ASSOC);
+            if ($duzenle_row) {
+                $duzenle_mode = true;
+
+                $r = $duzenle_row;
+                $matching_doktor = $db->prepare('SELECT d.doktor_id, d.klinik, d.hastane, d.sehir, k.kullanici_adsoyad
+                    FROM doktor d JOIN kullanici k ON d.kullanici_id = k.kullanici_id
+                    WHERE d.klinik = ? AND d.hastane = ? AND d.sehir = ?
+                    LIMIT 1');
+                $matching_doktor->execute([$r['randevu_klinik'], $r['randevu_hastane'], $r['randevu_sehir']]);
+                $doktor_bilgi = $matching_doktor->fetch(PDO::FETCH_ASSOC);
+            }
+        }
+    } catch (PDOException $e) {
+        $duzenle_row = null;
+    }
+}
+
 try {
     $doktorlar = $db->query('SELECT d.doktor_id, d.klinik, d.hastane, d.sehir, k.kullanici_adsoyad
         FROM doktor d
@@ -18,7 +48,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Hastane Otomasyonu - Randevu Al</title>
+    <title>Hastane Otomasyonu - <?php echo __('randevu_al'); ?></title>
 </head>
 <body>
     <?php include 'navbar.php'; ?>
@@ -33,15 +63,28 @@ try {
         if (isset($_GET['durum'])) {
             mesaj_goster($_GET['durum']);
         }
-        ?>
+
+        if ($duzenle_mode): ?>
+        <div class="card" style="border-left: 4px solid var(--warning); margin-bottom: 20px; padding: 15px 20px;">
+            <strong style="color: var(--warning);">✏️ Düzenleme Modu</strong>
+            <p style="margin: 5px 0 0 0; font-size: 14px;">
+                <strong><?php echo htmlspecialchars($duzenle_row['randevu_doktoru']); ?></strong> — 
+                <?php echo htmlspecialchars($duzenle_row['randevu_klinik']); ?> randevunuzu düzenliyorsunuz.
+                <a href="anasayfa.php" style="color: var(--primary);">İptal et</a>
+            </p>
+        </div>
+        <?php endif; ?>
 
         <div class="dashboard-grid">
             <div class="card">
                 <h3 class="card-title">
-                    <span class="card-icon">📋</span> Randevu Bilgileri
+                    <span class="card-icon">📋</span> <?php echo $duzenle_mode ? 'Randevu Düzenle' : 'Randevu Bilgileri'; ?>
                 </h3>
                 <form action="islem.php" method="post" id="randevuForm">
                     <?php echo csrf_input(); ?>
+                    <?php if ($duzenle_mode): ?>
+                    <input type="hidden" name="randevu_id" value="<?php echo (int) $duzenle_row['randevu_id']; ?>">
+                    <?php endif; ?>
 
                     <div class="form-group">
                         <label for="doktor_id">Doktor Seçin</label>
@@ -51,7 +94,8 @@ try {
                             <option value="<?php echo (int) $d['doktor_id']; ?>"
                                 data-sehir="<?php echo htmlspecialchars($d['sehir']); ?>"
                                 data-hastane="<?php echo htmlspecialchars($d['hastane']); ?>"
-                                data-klinik="<?php echo htmlspecialchars($d['klinik']); ?>">
+                                data-klinik="<?php echo htmlspecialchars($d['klinik']); ?>"
+                                <?php if ($duzenle_mode && $doktor_bilgi && $d['doktor_id'] == $doktor_bilgi['doktor_id']): ?>selected<?php endif; ?>>
                                 <?php echo htmlspecialchars($d['kullanici_adsoyad']); ?> — <?php echo htmlspecialchars($d['klinik']); ?> (<?php echo htmlspecialchars($d['sehir']); ?>)
                             </option>
                             <?php endforeach; ?>
@@ -66,7 +110,8 @@ try {
 
                     <div class="form-group">
                         <label for="tarih">Randevu Tarihi</label>
-                        <input type="date" id="tarih" name="tarih" class="date-control" min="<?php echo date('Y-m-d'); ?>" required>
+                        <input type="date" id="tarih" name="tarih" class="date-control" min="<?php echo date('Y-m-d'); ?>" required
+                            <?php if ($duzenle_mode): ?>value="<?php echo htmlspecialchars($duzenle_row['randevu_tarih']); ?>"<?php endif; ?>>
                     </div>
 
                     <div class="form-group">
@@ -77,7 +122,12 @@ try {
                         <small id="saatUyari" class="form-hint"></small>
                     </div>
 
-                    <button type="submit" name="randevu_kayit" class="btn btn-primary">Randevuyu Kaydet</button>
+                    <button type="submit" name="<?php echo $duzenle_mode ? 'randevu_guncelle' : 'randevu_kayit'; ?>" class="btn btn-primary">
+                        <?php echo $duzenle_mode ? 'Randevuyu Güncelle' : 'Randevuyu Kaydet'; ?>
+                    </button>
+                    <?php if ($duzenle_mode): ?>
+                    <a href="anasayfa.php" class="btn btn-secondary" style="margin-left: 8px;">İptal</a>
+                    <?php endif; ?>
                 </form>
             </div>
 

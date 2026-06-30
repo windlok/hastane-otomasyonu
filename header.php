@@ -46,6 +46,8 @@ function mesaj_goster($durum) {
         'dolu_saat' => ['class' => 'alert-danger', 'mesaj' => 'Seçtiğiniz saat dolu. Lütfen başka bir saat seçin.'],
         'gecersiz_saat' => ['class' => 'alert-danger', 'mesaj' => 'Geçersiz veya müsait olmayan bir saat seçtiniz.'],
         'yetkisiz' => ['class' => 'alert-danger', 'mesaj' => 'Bu sayfaya erişim yetkiniz yok!'],
+        'admin_sifre_degisti' => ['class' => 'alert-success', 'mesaj' => 'Admin şifresi başarıyla değiştirildi.'],
+        'mukerrer_email_admin' => ['class' => 'alert-danger', 'mesaj' => 'Bu e-posta adresi zaten kullanılıyor!'],
     ];
     
     if (isset($mesajlar[$durum])) {
@@ -82,13 +84,87 @@ function doktor_kontrol() {
     }
 }
 
-function tum_saatler() {
+function admin_kontrol() {
+    oturum_kontrol();
+    if (kullanici_rol() !== 'admin') {
+        header('location:index.php');
+        exit;
+    }
+}
+
+function tum_saatler(int $doktor_id = 0) {
+    if ($doktor_id > 0) {
+        $saatler = doktor_saatleri($doktor_id);
+        if (!empty($saatler)) {
+            return $saatler;
+        }
+    }
     $saatler = [];
     for ($saat = 9; $saat < 17; $saat++) {
         $saatler[] = sprintf('%02d:00', $saat);
         $saatler[] = sprintf('%02d:30', $saat);
     }
     return $saatler;
+}
+
+function doktor_saatleri(int $doktor_id, string $tarih = '') {
+    global $db;
+    if (!$doktor_id) return [];
+
+    $gun = $tarih ? (int)date('N', strtotime($tarih)) : 0;
+    if ($gun === 0) {
+        $calisma = $db->prepare('SELECT gun, baslangic, bitis FROM doktor_calisma_saat WHERE doktor_id = ? ORDER BY gun');
+        $calisma->execute([$doktor_id]);
+        $sonuc = [];
+        foreach ($calisma->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $sonuc = array_merge($sonuc, saat_araligi($row['baslangic'], $row['bitis']));
+        }
+        return $sonuc;
+    }
+
+    $calisma = $db->prepare('SELECT baslangic, bitis FROM doktor_calisma_saat WHERE doktor_id = ? AND gun = ?');
+    $calisma->execute([$doktor_id, $gun]);
+    $row = $calisma->fetch(PDO::FETCH_ASSOC);
+    if (!$row) return [];
+
+    return saat_araligi($row['baslangic'], $row['bitis']);
+}
+
+function saat_araligi($baslangic, $bitis) {
+    $saatler = [];
+    $bas = strtotime($baslangic);
+    $bit = strtotime($bitis);
+    $bas_saat = (int)date('G', $bas);
+    $bas_dk = (int)date('i', $bas);
+    $bit_saat = (int)date('G', $bit);
+
+    $bas_dk = $bas_dk > 0 ? 30 : 0;
+    for ($s = $bas_saat; $s < $bit_saat; $s++) {
+        $saatler[] = sprintf('%02d:00', $s);
+        $saatler[] = sprintf('%02d:30', $s);
+    }
+    return $saatler;
+}
+
+function mail_gonder($to, $konu, $mesaj) {
+    $headers = "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $headers .= "From: Hastane Otomasyonu <noreply@hastaneotomasyonu.com>\r\n";
+    return @mail($to, $konu, nl2br($mesaj), $headers);
+}
+
+// Dil desteği
+$dil = isset($_COOKIE['dil']) ? $_COOKIE['dil'] : 'tr';
+$dil_dosyasi = __DIR__ . "/lang/$dil.php";
+if (file_exists($dil_dosyasi)) {
+    include $dil_dosyasi;
+} else {
+    include __DIR__ . "/lang/tr.php";
+}
+
+function __($key) {
+    global $lang;
+    return $lang[$key] ?? $key;
 }
 
 function musait_saatler(PDO $db, int $doktor_id, string $tarih) {
@@ -100,7 +176,7 @@ function musait_saatler(PDO $db, int $doktor_id, string $tarih) {
     $stmt->execute([$doktor_id, $tarih]);
     $dolu = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-    $musait = array_values(array_diff(tum_saatler(), $dolu));
+    $musait = array_values(array_diff(tum_saatler($doktor_id), $dolu));
 
     if ($tarih === date('Y-m-d')) {
         $simdi = date('H:i');

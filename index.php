@@ -41,6 +41,9 @@ $aktif_tip = isset($_GET['tip']) && $_GET['tip'] === 'doktor' ? 'doktor' : 'hast
                     <input type="password" id="kullanici_password" name="kullanici_password" class="form-control" placeholder="Şifreniz" required>
                 </div>
                 <button type="submit" class="btn btn-primary" name="giris_yap">Giriş Yap</button>
+                <div style="text-align: center; margin-top: 12px;">
+                    <a href="sifre_sifirlama.php" style="color: var(--primary); font-size: 13px;">Şifremi Unuttum</a>
+                </div>
             </form>
 
             <?php if ($aktif_tip === 'hasta'): ?>
