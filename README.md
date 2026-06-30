@@ -4,6 +4,9 @@ Bu proje, bir hastaneye sunulabilecek düzeyde geliştirilmiş, modern ve güven
 
 ## ✨ Özellikler
 
+- **Hasta / Doktor Ayrımı:** Ayrı giriş sekmeleri; hastalar randevu alır, doktorlar kendi panelinden hastalarını görür.
+- **Saat Bazlı Randevu:** 09:00–16:30 arası 30 dakikalık slotlar; dolu saatler otomatik gizlenir.
+- **Çakışma Engeli:** Aynı doktor + tarih + saate ikinci randevu alınamaz.
 - **Modern Tasarım:** Tamamen responsive, Inter fontlu, profesyonel renk paletine sahip, sağlık sektörüne uygun modern arayüz tasarımı.
 - **Güvenli Üyelik Sistemi:** `password_hash()` ve `password_verify()` ile veri güvenliği. TC Kimlik format kontrolü ve e-posta kontrolü.
 - **CSRF Koruması:** Tüm formlarda CSRF (Cross-Site Request Forgery) koruması.
@@ -52,8 +55,23 @@ Bu proje, bir hastaneye sunulabilecek düzeyde geliştirilmiş, modern ve güven
 
 ## 👥 Kullanım Akışı
 
-1. **Kayıt Ol:** Giriş ekranında "Hemen Üye Olun" linkine tıklayarak Ad Soyad, TC, Telefon, E-posta ve Şifre bilgileriyle kayıt oluşturun.
-2. **Giriş Yap:** Oluşturduğunuz üyelikle güvenli bir şekilde giriş yapın.
-3. **Randevu Al:** İstediğiniz tarihi seçerek (geçmiş tarihler engellenmiştir) randevunuzu kaydedin.
-4. **Randevularım:** Alınan randevuları kontrol edin veya yaklaşan bir randevunuzu iptal edin.
-5. **Hesabım:** Profil bilgilerinizi güncelleyin ya da şifrenizi değiştirin.
+### Hasta
+1. **Kayıt Ol:** Giriş ekranında "Hemen Üye Olun" ile hasta hesabı oluşturun.
+2. **Giriş Yap:** "Hasta" sekmesinden TC ve şifre ile giriş yapın.
+3. **Randevu Al:** Doktor, tarih ve müsait saat seçerek randevu alın.
+4. **Randevularım:** Randevularınızı görüntüleyin veya iptal edin.
+
+### Doktor
+1. **Giriş Yap:** "Doktor" sekmesinden TC ve şifre ile giriş yapın.
+2. **Hasta Listesi:** Bugün / yaklaşan / tüm randevuları hasta bilgileriyle görün.
+3. **Detay:** Her randevuda hasta adı, TC, telefon, e-posta, tarih ve saat bilgisi yer alır.
+
+### Demo Doktor Hesapları
+Migration sonrası otomatik oluşturulur (şifre hepsi için `doktor123`):
+
+| Doktor | TC | Klinik |
+|--------|-----|--------|
+| Dr. Ahmet Yılmaz | 11111111110 | Kardiyoloji |
+| Dr. Ayşe Demir | 22222222220 | Kadın Doğum |
+| Dr. Mehmet Kaya | 33333333330 | Ortopedi |
+| Dr. Zeynep Öztürk | 44444444440 | Nöroloji |

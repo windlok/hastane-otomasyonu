@@ -95,6 +95,16 @@ try {
             echo "- {$m['migration_name']} ({$m['executed_at']})\n";
         }
     }
+
+    try {
+        $doktorSayisi = (int) $db->query('SELECT COUNT(*) FROM doktor')->fetchColumn();
+        if ($doktorSayisi === 0) {
+            echo "\n--- seed_doktorlar ---\n";
+            require __DIR__ . '/seed_doktorlar.php';
+        }
+    } catch (PDOException $e) {
+        echo "⊘ Doktor seed atlandı: " . $e->getMessage() . "\n";
+    }
 } catch (Exception $e) {
     echo "\n✗ HATA: " . $e->getMessage() . "\n";
     exit(1);

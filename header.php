@@ -42,6 +42,10 @@ function mesaj_goster($durum) {
         'bos_adsoyad' => ['class' => 'alert-danger', 'mesaj' => 'Ad Soyad alanı boş bırakılamaz!'],
         'mukerrer_email' => ['class' => 'alert-danger', 'mesaj' => 'Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor!'],
         'hatali_sifre' => ['class' => 'alert-danger', 'mesaj' => 'Mevcut şifrenizi yanlış girdiniz!'],
+        'yanlis_rol' => ['class' => 'alert-danger', 'mesaj' => 'Bu giriş türü hesabınızla eşleşmiyor! Lütfen doğru panelden giriş yapın.'],
+        'dolu_saat' => ['class' => 'alert-danger', 'mesaj' => 'Seçtiğiniz saat dolu. Lütfen başka bir saat seçin.'],
+        'gecersiz_saat' => ['class' => 'alert-danger', 'mesaj' => 'Geçersiz veya müsait olmayan bir saat seçtiniz.'],
+        'yetkisiz' => ['class' => 'alert-danger', 'mesaj' => 'Bu sayfaya erişim yetkiniz yok!'],
     ];
     
     if (isset($mesajlar[$durum])) {
@@ -55,6 +59,73 @@ function oturum_kontrol() {
     if (!isset($_SESSION['kullanici_tc'])) {
         header('location:index.php');
         exit;
+    }
+}
+
+function kullanici_rol() {
+    return $_SESSION['kullanici_rol'] ?? 'hasta';
+}
+
+function hasta_kontrol() {
+    oturum_kontrol();
+    if (kullanici_rol() !== 'hasta') {
+        header('location:doktor_panel.php?durum=yetkisiz');
+        exit;
+    }
+}
+
+function doktor_kontrol() {
+    oturum_kontrol();
+    if (kullanici_rol() !== 'doktor') {
+        header('location:anasayfa.php?durum=yetkisiz');
+        exit;
+    }
+}
+
+function tum_saatler() {
+    $saatler = [];
+    for ($saat = 9; $saat < 17; $saat++) {
+        $saatler[] = sprintf('%02d:00', $saat);
+        $saatler[] = sprintf('%02d:30', $saat);
+    }
+    return $saatler;
+}
+
+function musait_saatler(PDO $db, int $doktor_id, string $tarih) {
+    if (!$doktor_id || !$tarih) {
+        return [];
+    }
+
+    $stmt = $db->prepare("SELECT TIME_FORMAT(randevu_saat, '%H:%i') AS saat FROM randevu WHERE doktor_id = ? AND randevu_tarih = ? AND durum = 'aktif'");
+    $stmt->execute([$doktor_id, $tarih]);
+    $dolu = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $musait = array_values(array_diff(tum_saatler(), $dolu));
+
+    if ($tarih === date('Y-m-d')) {
+        $simdi = date('H:i');
+        $musait = array_values(array_filter($musait, fn($s) => $s > $simdi));
+    }
+
+    return $musait;
+}
+
+function oturum_kur($kullanici, PDO $db) {
+    $_SESSION['kullanici_tc'] = $kullanici['kullanici_tc'];
+    $_SESSION['kullanici_adsoyad'] = $kullanici['kullanici_adsoyad'];
+    $_SESSION['kullanici_id'] = $kullanici['kullanici_id'];
+    $_SESSION['kullanici_rol'] = $kullanici['rol'] ?? 'hasta';
+
+    $guncelle = $db->prepare('UPDATE kullanici SET son_giris = NOW() WHERE kullanici_id = ?');
+    $guncelle->execute([$kullanici['kullanici_id']]);
+
+    if ($_SESSION['kullanici_rol'] === 'doktor') {
+        $doktor = $db->prepare('SELECT doktor_id FROM doktor WHERE kullanici_id = ?');
+        $doktor->execute([$kullanici['kullanici_id']]);
+        $doktor_kayit = $doktor->fetch(PDO::FETCH_ASSOC);
+        $_SESSION['doktor_id'] = $doktor_kayit['doktor_id'] ?? null;
+    } else {
+        unset($_SESSION['doktor_id']);
     }
 }
 ?>

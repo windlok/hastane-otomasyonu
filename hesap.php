@@ -1,8 +1,6 @@
 <?php 
 include 'header.php';
 oturum_kontrol();
-
-// Kullanıcı bilgilerini çekelim
 try {
     $sorgu = $db->prepare('SELECT * FROM kullanici WHERE kullanici_tc = ?');
     $sorgu->execute([$_SESSION['kullanici_tc']]);

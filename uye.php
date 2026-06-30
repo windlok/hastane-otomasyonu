@@ -15,7 +15,7 @@ include 'header.php';
             <div class="auth-header">
                 <span class="auth-icon">📝</span>
                 <h1>Üye Ol</h1>
-                <p>Hastane otomasyonunu kullanmak için kayıt oluşturun</p>
+                <p>Hasta kaydı oluşturun — doktor hesapları yönetici tarafından açılır</p>
             </div>
 
             <?php 

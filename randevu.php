@@ -1,11 +1,6 @@
 <?php 
 include 'header.php';
-
-// Oturum kontrolü
-if(!isset($_SESSION['kullanici_tc'])) {
-    header('location:index.php');
-    exit;
-}
+hasta_kontrol();
 
 // Kullanıcı bilgilerini alalım
 try {
@@ -102,6 +97,7 @@ try {
                             <th>Doktor</th>
                             <th>İl</th>
                             <th>Tarih</th>
+                            <th>Saat</th>
                             <th style="width: 100px; text-align: center;">İşlem</th>
                         </tr>
                     </thead>
@@ -113,7 +109,7 @@ try {
                             $sorgu->execute([$kullanici['kullanici_id']]);
                             
                             if ($sorgu->rowCount() == 0) {
-                                echo "<tr><td colspan='6' class='empty-state'>
+                                echo "<tr><td colspan='7' class='empty-state'>
                                     <span class='empty-icon'>📅</span>
                                     <p>Henüz randevunuz bulunmamaktadır.</p>
                                 </td></tr>";
@@ -121,7 +117,9 @@ try {
                             
                             while ($randevu = $sorgu->fetch(PDO::FETCH_ASSOC)) {
                                 $tarih_format = date('d.m.Y', strtotime($randevu['randevu_tarih']));
-                                $is_future = strtotime($randevu['randevu_tarih']) >= strtotime(date('Y-m-d'));
+                                $saat_format = $randevu['randevu_saat'] ? date('H:i', strtotime($randevu['randevu_saat'])) : '-';
+                                $randevu_zamani = strtotime($randevu['randevu_tarih'] . ' ' . ($randevu['randevu_saat'] ?? '23:59:59'));
+                                $is_future = $randevu_zamani >= time();
                                 
                                 echo "<tr>";
                                 echo "<td><strong>" . htmlspecialchars($randevu['randevu_hastane']) . "</strong></td>";
@@ -129,6 +127,7 @@ try {
                                 echo "<td>" . htmlspecialchars($randevu['randevu_doktoru']) . "</td>";
                                 echo "<td>" . htmlspecialchars($randevu['randevu_sehir']) . "</td>";
                                 echo "<td>" . $tarih_format . "</td>";
+                                echo "<td><span class='slot-badge active'>" . $saat_format . "</span></td>";
                                 echo "<td style='text-align: center;'>";
                                 if ($is_future) {
                                     echo "<a href='islem.php?islem=randevu_sil&id=" . $randevu['randevu_id'] . "' onclick='return confirm(\"Randevunuzu iptal etmek istediğinize emin misiniz?\")' class='btn btn-danger'>İptal Et</a>";
@@ -139,7 +138,7 @@ try {
                                 echo "</tr>";
                             }
                         } catch (PDOException $e) {
-                            echo "<tr><td colspan='6' class='empty-state'>Veriler yüklenirken bir sorun oluştu.</td></tr>";
+                            echo "<tr><td colspan='7' class='empty-state'>Veriler yüklenirken bir sorun oluştu.</td></tr>";
                         }
                         ?>
                     </tbody>

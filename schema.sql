@@ -23,18 +23,33 @@ CREATE TABLE IF NOT EXISTS kullanici (
   kullanici_password VARCHAR(255) NOT NULL,
   kullanici_telefon VARCHAR(15) DEFAULT NULL,
   kullanici_email VARCHAR(150) DEFAULT NULL,
+  rol ENUM('hasta', 'doktor') NOT NULL DEFAULT 'hasta',
   kayit_tarihi TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   guncelleme_tarihi TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   son_giris TIMESTAMP NULL DEFAULT NULL,
   aktif TINYINT(1) DEFAULT 1
 );
 
+-- Doktor profil tablosu
+CREATE TABLE IF NOT EXISTS doktor (
+  doktor_id INT AUTO_INCREMENT PRIMARY KEY,
+  kullanici_id INT NOT NULL UNIQUE,
+  klinik VARCHAR(150) NOT NULL,
+  hastane VARCHAR(150) NOT NULL,
+  sehir VARCHAR(50) NOT NULL,
+  CONSTRAINT fk_doktor_kullanici
+    FOREIGN KEY (kullanici_id) REFERENCES kullanici(kullanici_id)
+    ON DELETE CASCADE
+);
+
 -- Randevu tablosu
 CREATE TABLE IF NOT EXISTS randevu (
   randevu_id INT AUTO_INCREMENT PRIMARY KEY,
   kullanici_id INT NOT NULL,
+  doktor_id INT NULL,
   randevu_sehir VARCHAR(50) NOT NULL,
   randevu_tarih DATE NOT NULL,
+  randevu_saat TIME NULL,
   randevu_hastane VARCHAR(150) NOT NULL,
   randevu_klinik VARCHAR(150) NOT NULL,
   randevu_doktoru VARCHAR(150) NOT NULL,
@@ -43,13 +58,16 @@ CREATE TABLE IF NOT EXISTS randevu (
   iptal_tarihi TIMESTAMP NULL DEFAULT NULL,
   CONSTRAINT fk_randevu_kullanici
     FOREIGN KEY (kullanici_id) REFERENCES kullanici(kullanici_id)
-    ON DELETE CASCADE
+    ON DELETE CASCADE,
+  CONSTRAINT fk_randevu_doktor
+    FOREIGN KEY (doktor_id) REFERENCES doktor(doktor_id)
+    ON DELETE SET NULL
 );
 
 -- İndeksler
 CREATE INDEX idx_kullanici_tc ON kullanici(kullanici_tc);
 CREATE INDEX idx_kullanici_email ON kullanici(kullanici_email);
 CREATE INDEX idx_randevu_kullanici_tarih ON randevu(kullanici_id, randevu_tarih);
-CREATE INDEX idx_randevu_durum ON randevu(durum);
+CREATE INDEX idx_randevu_doktor_tarih_saat ON randevu(doktor_id, randevu_tarih, randevu_saat);
 
 -- Not: Migration'ları çalıştırmak için: php migrate.php

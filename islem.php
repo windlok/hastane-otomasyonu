@@ -1,7 +1,5 @@
 <?php 
-ob_start();
-session_start();
-include 'bagla.php';
+include 'header.php';
 
 // Çıkış işlemi
 if (isset($_GET['islem'])) {
@@ -13,7 +11,7 @@ if (isset($_GET['islem'])) {
     
     // Randevu silme işlemi
     if ($_GET['islem'] == 'randevu_sil') {
-        if (!isset($_SESSION['kullanici_tc'])) {
+        if (!isset($_SESSION['kullanici_tc']) || ($_SESSION['kullanici_rol'] ?? 'hasta') !== 'hasta') {
             header('location:index.php');
             exit;
         }
@@ -45,71 +43,97 @@ if (isset($_GET['islem'])) {
 
 // Randevu kayıt işlemi
 if (isset($_POST['randevu_kayıt'])) {
-    // CSRF kontrolü
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         header('location:anasayfa.php?durum=guvenlik_hatasi');
         exit;
     }
 
-    if (!isset($_SESSION['kullanici_tc'])) {
+    if (!isset($_SESSION['kullanici_tc']) || ($_SESSION['kullanici_rol'] ?? 'hasta') !== 'hasta') {
         header('location:index.php?durum=giris_gerekli');
         exit;
     }
 
     $tarih = isset($_POST['tarih']) ? $_POST['tarih'] : null;
-    $sehir = isset($_POST['sehirler']) ? $_POST['sehirler'] : null;
-    $hastane = isset($_POST['hastane']) ? $_POST['hastane'] : null;
-    $klinik = isset($_POST['klinik']) ? $_POST['klinik'] : null;
-    $doktor = isset($_POST['doktor']) ? $_POST['doktor'] : null;
+    $doktor_id = isset($_POST['doktor_id']) ? intval($_POST['doktor_id']) : 0;
+    $saat = isset($_POST['saat']) ? trim($_POST['saat']) : null;
     $kullanici_tc = $_SESSION['kullanici_tc'];
 
-    if (!$tarih || !$sehir || !$hastane || !$klinik || !$doktor) {
+    if (!$tarih || !$doktor_id || !$saat) {
         header('location:anasayfa.php?durum=bos_alan');
         exit;
     }
 
-    // Geçmiş tarih kontrolü
     if (strtotime($tarih) < strtotime(date('Y-m-d'))) {
         header('location:anasayfa.php?durum=gecmis_tarih');
         exit;
     }
 
+    if (!preg_match('/^\d{2}:\d{2}$/', $saat) || !in_array($saat, tum_saatler(), true)) {
+        header('location:anasayfa.php?durum=gecersiz_saat');
+        exit;
+    }
+
     try {
-        // Önce kullanıcı ID'sini alalım
         $kullanici_sorgu = $db->prepare('SELECT kullanici_id FROM kullanici WHERE kullanici_tc = ?');
         $kullanici_sorgu->execute([$kullanici_tc]);
         $kullanici = $kullanici_sorgu->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$kullanici) {
             header('location:anasayfa.php?durum=kullanici_bulunamadi');
             exit;
         }
 
+        $doktor_sorgu = $db->prepare('SELECT d.*, k.kullanici_adsoyad FROM doktor d JOIN kullanici k ON d.kullanici_id = k.kullanici_id WHERE d.doktor_id = ?');
+        $doktor_sorgu->execute([$doktor_id]);
+        $doktor = $doktor_sorgu->fetch(PDO::FETCH_ASSOC);
+
+        if (!$doktor) {
+            header('location:anasayfa.php?durum=hata');
+            exit;
+        }
+
+        $musait = musait_saatler($db, $doktor_id, $tarih);
+        if (!in_array($saat, $musait, true)) {
+            header('location:anasayfa.php?durum=dolu_saat');
+            exit;
+        }
+
+        $cakisma = $db->prepare("SELECT randevu_id FROM randevu WHERE doktor_id = ? AND randevu_tarih = ? AND randevu_saat = ? AND durum = 'aktif'");
+        $cakisma->execute([$doktor_id, $tarih, $saat . ':00']);
+        if ($cakisma->fetch()) {
+            header('location:anasayfa.php?durum=dolu_saat');
+            exit;
+        }
+
         $sorgu = $db->prepare('INSERT INTO randevu SET
             kullanici_id = ?,
+            doktor_id = ?,
             randevu_sehir = ?,
             randevu_tarih = ?,
+            randevu_saat = ?,
             randevu_hastane = ?,
             randevu_klinik = ?,
             randevu_doktoru = ?
         ');
-        
+
         $ekle = $sorgu->execute([
             $kullanici['kullanici_id'],
-            $sehir,
+            $doktor_id,
+            $doktor['sehir'],
             $tarih,
-            $hastane,
-            $klinik,
-            $doktor
+            $saat . ':00',
+            $doktor['hastane'],
+            $doktor['klinik'],
+            $doktor['kullanici_adsoyad']
         ]);
 
         if ($ekle) {
             header('location:randevu.php?durum=basarili');
             exit;
-        } else {
-            header('location:anasayfa.php?durum=hata');
-            exit;
         }
+
+        header('location:anasayfa.php?durum=hata');
+        exit;
     } catch(PDOException $e) {
         error_log("Randevu kayıt hatası: " . $e->getMessage());
         header('location:anasayfa.php?durum=sistem_hatasi');
@@ -164,14 +188,16 @@ if (isset($_POST['kullanicikaydet'])) {
             kullanici_adsoyad = ?,
             kullanici_password = ?,
             kullanici_telefon = ?,
-            kullanici_email = ?
+            kullanici_email = ?,
+            rol = ?
         ');
         $ekle = $sorgu->execute([
             $kullanici_tc, 
             $kullanici_adsoyad, 
             $hashed_password,
             $kullanici_telefon,
-            $kullanici_email
+            $kullanici_email,
+            'hasta'
         ]);
         
         if ($ekle) {
@@ -192,10 +218,15 @@ if (isset($_POST['kullanicikaydet'])) {
 if (isset($_POST['giris_yap'])) {
     $kullanici_tc = isset($_POST['kullanici_tc']) ? trim($_POST['kullanici_tc']) : null;
     $kullanici_password = isset($_POST['kullanici_password']) ? $_POST['kullanici_password'] : null;
+    $giris_tipi = isset($_POST['giris_tipi']) ? $_POST['giris_tipi'] : 'hasta';
     
     if (!$kullanici_tc || !$kullanici_password) {
         header('location:index.php?durum=bos_alan');
         exit;
+    }
+
+    if (!in_array($giris_tipi, ['hasta', 'doktor'], true)) {
+        $giris_tipi = 'hasta';
     }
 
     try {
@@ -204,15 +235,25 @@ if (isset($_POST['giris_yap'])) {
         $kullanici = $sorgu->fetch(PDO::FETCH_ASSOC);
         
         if ($kullanici && password_verify($kullanici_password, $kullanici['kullanici_password'])) {
-            $_SESSION['kullanici_tc'] = $kullanici_tc;
-            $_SESSION['kullanici_adsoyad'] = $kullanici['kullanici_adsoyad'];
-            
-            header('location:anasayfa.php');
-            exit;
-        } else {
-            header('location:index.php?durum=hatali_giris');
+            $kullanici_rol = $kullanici['rol'] ?? 'hasta';
+
+            if ($kullanici_rol !== $giris_tipi) {
+                header('location:index.php?durum=yanlis_rol&tip=' . $giris_tipi);
+                exit;
+            }
+
+            oturum_kur($kullanici, $db);
+
+            if ($kullanici_rol === 'doktor') {
+                header('location:doktor_panel.php');
+            } else {
+                header('location:anasayfa.php');
+            }
             exit;
         }
+
+        header('location:index.php?durum=hatali_giris&tip=' . $giris_tipi);
+        exit;
     } catch(PDOException $e) {
         error_log("Giriş hatası: " . $e->getMessage());
         header('location:index.php?durum=sistem_hatasi');
