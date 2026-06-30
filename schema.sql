@@ -64,10 +64,13 @@ CREATE TABLE IF NOT EXISTS randevu (
     ON DELETE SET NULL
 );
 
--- İndeksler
+-- İndeksler (uq_ = aynı doktor-aynı saat-aynı tarihe çift kaydı engeller)
 CREATE INDEX idx_kullanici_tc ON kullanici(kullanici_tc);
 CREATE INDEX idx_kullanici_email ON kullanici(kullanici_email);
 CREATE INDEX idx_randevu_kullanici_tarih ON randevu(kullanici_id, randevu_tarih);
-CREATE INDEX idx_randevu_doktor_tarih_saat ON randevu(doktor_id, randevu_tarih, randevu_saat);
+-- UNIQUE: aynı doktor + aynı tarih + aynı saat için yalnız bir aktif randevu
+CREATE UNIQUE INDEX uq_randevu_aktif ON randevu(doktor_id, randevu_tarih, randevu_saat);
+
+-- Migration kaydı: İlk şema
 
 -- Not: Migration'ları çalıştırmak için: php migrate.php

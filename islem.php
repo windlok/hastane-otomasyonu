@@ -74,33 +74,35 @@ if (isset($_POST['randevu_kayıt'])) {
     }
 
     try {
+        $db->beginTransaction();
+
+        // Kullanıcı kontrolü
         $kullanici_sorgu = $db->prepare('SELECT kullanici_id FROM kullanici WHERE kullanici_tc = ?');
         $kullanici_sorgu->execute([$kullanici_tc]);
         $kullanici = $kullanici_sorgu->fetch(PDO::FETCH_ASSOC);
 
         if (!$kullanici) {
+            $db->rollBack();
             header('location:anasayfa.php?durum=kullanici_bulunamadi');
             exit;
         }
 
+        // Doktor kontrolü
         $doktor_sorgu = $db->prepare('SELECT d.*, k.kullanici_adsoyad FROM doktor d JOIN kullanici k ON d.kullanici_id = k.kullanici_id WHERE d.doktor_id = ?');
         $doktor_sorgu->execute([$doktor_id]);
         $doktor = $doktor_sorgu->fetch(PDO::FETCH_ASSOC);
 
         if (!$doktor) {
+            $db->rollBack();
             header('location:anasayfa.php?durum=hata');
             exit;
         }
 
-        $musait = musait_saatler($db, $doktor_id, $tarih);
-        if (!in_array($saat, $musait, true)) {
-            header('location:anasayfa.php?durum=dolu_saat');
-            exit;
-        }
-
-        $cakisma = $db->prepare("SELECT randevu_id FROM randevu WHERE doktor_id = ? AND randevu_tarih = ? AND randevu_saat = ? AND durum = 'aktif'");
+        // Race condition önleme: aynı doktor+tarih+saaati kilitler
+        $cakisma = $db->prepare("SELECT randevu_id FROM randevu WHERE doktor_id = ? AND randevu_tarih = ? AND randevu_saat = ? AND durum = 'aktif' FOR UPDATE");
         $cakisma->execute([$doktor_id, $tarih, $saat . ':00']);
         if ($cakisma->fetch()) {
+            $db->rollBack();
             header('location:anasayfa.php?durum=dolu_saat');
             exit;
         }
@@ -128,14 +130,22 @@ if (isset($_POST['randevu_kayıt'])) {
         ]);
 
         if ($ekle) {
+            $db->commit();
             header('location:randevu.php?durum=basarili');
             exit;
         }
 
+        $db->rollBack();
         header('location:anasayfa.php?durum=hata');
         exit;
     } catch(PDOException $e) {
+        if ($db->inTransaction()) $db->rollBack();
         error_log("Randevu kayıt hatası: " . $e->getMessage());
+        // UNIQUE ihlali durumunda (yedek koruma)
+        if ($e->getCode() == 23000 && strpos($e->getMessage(), 'uq_randevu_aktif') !== false) {
+            header('location:anasayfa.php?durum=dolu_saat');
+            exit;
+        }
         header('location:anasayfa.php?durum=sistem_hatasi');
         exit;
     }
