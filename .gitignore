@@ -1,0 +1,65 @@
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Arşiv
+*.rar
+*.zip
+*.tar.gz
+*.7z
+
+# Test dosyaları
+test_*.php
+*_test.php
+phpunit.xml*
+
+# Log
+*.log
+error_log
+php_error.log
+
+# Veritabanı
+*.sqlite
+*.db
+*.sql
+!schema.sql
+!migrations/*.sql
+
+# Yapılandırma (hassas bilgi içerebilir)
+bagla.php
+config.php
+.env
+*.env
+*.env.local
+
+# Yedek dosyalar
+*.bak
+*~
+*.old
+
+# Composer
+vendor/
+composer.phar
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Build
+dist/
+build/
+*.min.css
+*.min.js
+
+# Cache
+*.cache
+.php-cs-fixer.cache
