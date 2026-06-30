@@ -111,6 +111,7 @@ function musait_saatler(PDO $db, int $doktor_id, string $tarih) {
 }
 
 function oturum_kur($kullanici, PDO $db) {
+    session_regenerate_id(true);
     $_SESSION['kullanici_tc'] = $kullanici['kullanici_tc'];
     $_SESSION['kullanici_adsoyad'] = $kullanici['kullanici_adsoyad'];
     $_SESSION['kullanici_id'] = $kullanici['kullanici_id'];

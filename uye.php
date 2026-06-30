@@ -25,6 +25,7 @@ include 'header.php';
             ?>
 
             <form action="islem.php" method="post">
+                    <?php echo csrf_input(); ?>
                 <div class="form-group">
                     <label for="kullanici_adsoyad">Ad Soyad *</label>
                     <input type="text" id="kullanici_adsoyad" name="kullanici_adsoyad" class="form-control" placeholder="Adınız ve Soyadınız" required>

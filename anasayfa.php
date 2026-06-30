@@ -77,7 +77,7 @@ try {
                         <small id="saatUyari" class="form-hint"></small>
                     </div>
 
-                    <button type="submit" name="randevu_kayıt" class="btn btn-primary">Randevuyu Kaydet</button>
+                    <button type="submit" name="randevu_kayit" class="btn btn-primary">Randevuyu Kaydet</button>
                 </form>
             </div>
 

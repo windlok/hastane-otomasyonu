@@ -8,41 +8,45 @@ if (isset($_GET['islem'])) {
         header('location:index.php');
         exit;
     }
-    
-    // Randevu silme işlemi
-    if ($_GET['islem'] == 'randevu_sil') {
-        if (!isset($_SESSION['kullanici_tc']) || ($_SESSION['kullanici_rol'] ?? 'hasta') !== 'hasta') {
-            header('location:index.php');
-            exit;
-        }
+}
 
-        $randevu_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-        
-        // Kullanıcının kendi randevusunu sildiğinden emin olalım
-        $kullanici_sorgu = $db->prepare('SELECT kullanici_id FROM kullanici WHERE kullanici_tc = ?');
-        $kullanici_sorgu->execute([$_SESSION['kullanici_tc']]);
-        $kullanici = $kullanici_sorgu->fetch(PDO::FETCH_ASSOC);
-
-        if ($kullanici) {
-            $randevu_kontrol = $db->prepare('SELECT * FROM randevu WHERE randevu_id = ? AND kullanici_id = ?');
-            $randevu_kontrol->execute([$randevu_id, $kullanici['kullanici_id']]);
-            
-            if ($randevu_kontrol->rowCount() > 0) {
-                $sil = $db->prepare('DELETE FROM randevu WHERE randevu_id = ? AND kullanici_id = ?');
-                $sil->execute([$randevu_id, $kullanici['kullanici_id']]);
-                
-                header('location:randevu.php?durum=silindi');
-                exit;
-            }
-        }
-        
-        header('location:randevu.php');
+// Randevu silme işlemi (POST + CSRF)
+if (isset($_POST['randevu_sil'])) {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        header('location:randevu.php?durum=guvenlik_hatasi');
         exit;
     }
+
+    if (!isset($_SESSION['kullanici_tc']) || ($_SESSION['kullanici_rol'] ?? 'hasta') !== 'hasta') {
+        header('location:index.php');
+        exit;
+    }
+
+    $randevu_id = isset($_POST['randevu_sil_id']) ? intval($_POST['randevu_sil_id']) : 0;
+
+    $kullanici_sorgu = $db->prepare('SELECT kullanici_id FROM kullanici WHERE kullanici_tc = ?');
+    $kullanici_sorgu->execute([$_SESSION['kullanici_tc']]);
+    $kullanici = $kullanici_sorgu->fetch(PDO::FETCH_ASSOC);
+
+    if ($kullanici) {
+        $randevu_kontrol = $db->prepare('SELECT * FROM randevu WHERE randevu_id = ? AND kullanici_id = ?');
+        $randevu_kontrol->execute([$randevu_id, $kullanici['kullanici_id']]);
+
+        if ($randevu_kontrol->rowCount() > 0) {
+            $sil = $db->prepare('DELETE FROM randevu WHERE randevu_id = ? AND kullanici_id = ?');
+            $sil->execute([$randevu_id, $kullanici['kullanici_id']]);
+
+            header('location:randevu.php?durum=silindi');
+            exit;
+        }
+    }
+
+    header('location:randevu.php');
+    exit;
 }
 
 // Randevu kayıt işlemi
-if (isset($_POST['randevu_kayıt'])) {
+if (isset($_POST['randevu_kayit'])) {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         header('location:anasayfa.php?durum=guvenlik_hatasi');
         exit;
@@ -153,6 +157,11 @@ if (isset($_POST['randevu_kayıt'])) {
 
 // Kullanıcı kayıt işlemi
 if (isset($_POST['kullanicikaydet'])) {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        header('location:uye.php?durum=guvenlik_hatasi');
+        exit;
+    }
+
     $kullanici_tc = isset($_POST['kullanici_tc']) ? trim($_POST['kullanici_tc']) : null;
     $kullanici_adsoyad = isset($_POST['kullanici_adsoyad']) ? htmlspecialchars(trim($_POST['kullanici_adsoyad'])) : null;
     $kullanici_password = isset($_POST['kullanici_password']) ? $_POST['kullanici_password'] : null;

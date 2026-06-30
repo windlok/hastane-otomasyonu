@@ -9,7 +9,8 @@ Bu proje, bir hastaneye sunulabilecek düzeyde geliştirilmiş, modern ve güven
 - **Çakışma Engeli:** Aynı doktor + tarih + saate ikinci randevu alınamaz.
 - **Modern Tasarım:** Tamamen responsive, Inter fontlu, profesyonel renk paletine sahip, sağlık sektörüne uygun modern arayüz tasarımı.
 - **Güvenli Üyelik Sistemi:** `password_hash()` ve `password_verify()` ile veri güvenliği. TC Kimlik format kontrolü ve e-posta kontrolü.
-- **CSRF Koruması:** Tüm formlarda CSRF (Cross-Site Request Forgery) koruması.
+- **CSRF Koruması:** Tüm oturum ve işlem formlarında CSRF (Cross-Site Request Forgery) koruması; randevu silme dahil POST ile yapılır.
+- **Çakışma Engeli:** Transaction + `SELECT FOR UPDATE` + UNIQUE index ile aynı doktor + tarih + saate ikinci randevu alınamaz.
 - **Randevu Yönetimi:** Şehir, hastane, klinik ve doktor seçimiyle randevu alma. Geçmiş tarihlere randevu alımının engellenmesi.
 - **Detaylı İstatistikler:** Profilinizde toplam randevu, yaklaşan randevu ve geçmiş randevu adetlerinin anlık takibi.
 - **Profil Yönetimi:** Şifre, telefon, e-posta ve isim-soyad bilgilerini güvenli bir şekilde güncelleyebilme paneli.

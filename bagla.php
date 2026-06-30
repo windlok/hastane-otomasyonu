@@ -2,7 +2,7 @@
 
 try {
     $db = new PDO(
-        'mysql:host=localhost;dbname=hastane_otomasyonu;charset=utf8mb4',
+        'mysql:host=127.0.0.1;port=3306;dbname=hastane_otomasyonu;charset=utf8mb4',
         'root',
         '',
         [

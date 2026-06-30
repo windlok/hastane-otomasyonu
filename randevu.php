@@ -130,7 +130,11 @@ try {
                                 echo "<td><span class='slot-badge active'>" . $saat_format . "</span></td>";
                                 echo "<td style='text-align: center;'>";
                                 if ($is_future) {
-                                    echo "<a href='islem.php?islem=randevu_sil&id=" . $randevu['randevu_id'] . "' onclick='return confirm(\"Randevunuzu iptal etmek istediğinize emin misiniz?\")' class='btn btn-danger'>İptal Et</a>";
+                                    echo "<form action='islem.php' method='post' style='display:inline;' onsubmit='return confirm(\"Randevunuzu iptal etmek istediğinize emin misiniz?\")'>";
+                                    echo "<input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>";
+                                    echo "<input type='hidden' name='randevu_sil_id' value='" . $randevu['randevu_id'] . "'>";
+                                    echo "<button type='submit' name='randevu_sil' class='btn btn-danger'>İptal Et</button>";
+                                    echo "</form>";
                                 } else {
                                     echo "<span style='color: var(--text-muted); font-size: 13px; font-weight: 500;'>Gerçekleşti</span>";
                                 }
