@@ -15,6 +15,16 @@ Bu proje, bir hastaneye sunulabilecek düzeyde geliştirilmiş, modern ve güven
 - **Detaylı İstatistikler:** Profilinizde toplam randevu, yaklaşan randevu ve geçmiş randevu adetlerinin anlık takibi.
 - **Profil Yönetimi:** Şifre, telefon, e-posta ve isim-soyad bilgilerini güvenli bir şekilde güncelleyebilme paneli.
 - **Kolay İptal:** Yaklaşan randevuları tek tıkla iptal edebilme imkanı.
+- **Randevu Düzenleme:** Alınmış randevuları güncelleme (doktor/tarih/saat değiştirme).
+- **Şifre Sıfırlama:** TC kimlik ve e-posta doğrulaması ile şifre yenileme.
+- **Admin Paneli:** Kullanıcı yönetimi (aktif/pasif), randevu listesi, doktor ekleme.
+- **Doktor Çalışma Saatleri:** Haftalık bazda çalışma günleri ve saat ayarları.
+- **E-posta Bildirimleri:** Randevu alma, güncelleme, iptal ve şifre sıfırlama olaylarında e-posta bildirimi.
+- **PDF Rapor:** Tarih aralığına göre randevu raporu (PDF çıktı / yazdırma).
+- **Tıbbi Notlar:** Doktorların randevulara tıbbi not eklemesi, hastaların görüntülemesi.
+- **Online Reçete Sistemi:** İlaç listesi (İlaç | Doz | Süre | Açıklama) şeklinde reçete yazma ve görüntüleme.
+- **Kuyruk / Sıra Yönetimi:** Otomatik sıra numarası, hasta sıra takibi, doktor sıra listesi (30sn otomatik yenileme).
+- **Çoklu Dil Desteği:** Türkçe / İngilizce dil seçeneği (navbar switcher).
 
 ## 🛠️ Teknolojiler
 
@@ -67,12 +77,19 @@ Bu proje, bir hastaneye sunulabilecek düzeyde geliştirilmiş, modern ve güven
 2. **Hasta Listesi:** Bugün / yaklaşan / tüm randevuları hasta bilgileriyle görün.
 3. **Detay:** Her randevuda hasta adı, TC, telefon, e-posta, tarih ve saat bilgisi yer alır.
 
-### Demo Doktor Hesapları
-Migration sonrası otomatik oluşturulur (şifre hepsi için `doktor123`):
+### Admin
+1. **Giriş:** `http://localhost/hastane/admin/` adresinden kullanıcı adı (`admin`) ve şifre (`password`) ile giriş.
+2. **Panel:** Kullanıcıları aktif/pasif yapma, tüm randevuları görme, yeni doktor ekleme.
 
-| Doktor | TC | Klinik |
-|--------|-----|--------|
-| Dr. Ahmet Yılmaz | 11111111110 | Kardiyoloji |
-| Dr. Ayşe Demir | 22222222220 | Kadın Doğum |
-| Dr. Mehmet Kaya | 33333333330 | Ortopedi |
-| Dr. Zeynep Öztürk | 44444444440 | Nöroloji |
+### Demo Hesapları
+
+| Rol | TC / Kullanıcı Adı | Şifre |
+|-----|---------------------|-------|
+| Admin | `admin` (kullanıcı adı) | `password` |
+| Dr. Ahmet Yılmaz (Kardiyoloji) | 11111111110 | doktor123 |
+| Dr. Ayşe Demir (Kadın Doğum) | 22222222220 | doktor123 |
+| Dr. Mehmet Kaya (Ortopedi) | 33333333330 | doktor123 |
+| Dr. Zeynep Öztürk (Nöroloji) | 44444444440 | doktor123 |
+
+### Sıra / Kuyruk Ekranı
+Bekleme salonu TV'leri için: `http://localhost/hastane/sira_ekrani.php` (anonim, oturum gerekmez, 15sn otomatik yenileme).

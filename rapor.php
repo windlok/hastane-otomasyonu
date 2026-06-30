@@ -40,7 +40,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Randevu Raporu</title>
+    <title><?php echo __('baslik_rapor'); ?></title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #333; }
@@ -66,39 +66,39 @@ try {
 <body>
     <div class="no-print" style="margin-bottom:15px;">
         <form method="get" style="display:flex; gap:10px; align-items:end; flex-wrap:wrap;">
-            <div><label style="font-size:12px;font-weight:600;">Başlangıç</label><input type="date" name="baslangic" value="<?php echo $baslangic; ?>" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;"></div>
-            <div><label style="font-size:12px;font-weight:600;">Bitiş</label><input type="date" name="bitis" value="<?php echo $bitis; ?>" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;"></div>
-            <button type="submit" style="padding:6px 16px;background:#1a73e8;color:#fff;border:none;border-radius:4px;cursor:pointer;">Listele</button>
-            <a href="javascript:window.print()" class="print-btn">PDF / Yazdır</a>
+            <div><label style="font-size:12px;font-weight:600;"><?php echo __('bastan'); ?></label><input type="date" name="baslangic" value="<?php echo $baslangic; ?>" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;"></div>
+            <div><label style="font-size:12px;font-weight:600;"><?php echo __('bitis'); ?></label><input type="date" name="bitis" value="<?php echo $bitis; ?>" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;"></div>
+            <button type="submit" style="padding:6px 16px;background:#1a73e8;color:#fff;border:none;border-radius:4px;cursor:pointer;"><?php echo __('listele'); ?></button>
+            <a href="javascript:window.print()" class="print-btn"><?php echo __('pdf_yazdir'); ?></a>
         </form>
     </div>
 
     <div class="report-header">
-        <h1>Hastane Otomasyonu — Randevu Raporu</h1>
-        <p>Hasta Randevu Takip Sistemi</p>
+        <h1><?php echo __('hastane_otomasyonu_rapor'); ?></h1>
+        <p><?php echo __('randevu_takip_sistemi'); ?></p>
     </div>
 
     <div class="report-meta">
-        <span><strong>Dönem:</strong> <?php echo date('d.m.Y', strtotime($baslangic)); ?> — <?php echo date('d.m.Y', strtotime($bitis)); ?></span>
-        <span><strong>Toplam:</strong> <?php echo count($randevular); ?> randevu</span>
-        <span><strong>Oluşturan:</strong> <?php echo htmlspecialchars($_SESSION['kullanici_adsoyad']); ?> (<?php echo ucfirst($rol); ?>)</span>
-        <span><strong>Tarih:</strong> <?php echo date('d.m.Y H:i'); ?></span>
+        <span><strong><?php echo __('donem'); ?>:</strong> <?php echo date('d.m.Y', strtotime($baslangic)); ?> — <?php echo date('d.m.Y', strtotime($bitis)); ?></span>
+        <span><strong><?php echo __('toplam'); ?>:</strong> <?php echo count($randevular); ?> <?php echo __('randevu'); ?></span>
+        <span><strong><?php echo __('olusturan'); ?>:</strong> <?php echo htmlspecialchars($_SESSION['kullanici_adsoyad']); ?> (<?php echo ucfirst($rol); ?>)</span>
+        <span><strong><?php echo __('tarih'); ?>:</strong> <?php echo date('d.m.Y H:i'); ?></span>
     </div>
 
     <?php if (empty($randevular)): ?>
-    <div class="no-data">Seçilen dönemde randevu bulunamadı.</div>
+    <div class="no-data"><?php echo __('donem_randevu_yok'); ?></div>
     <?php else: ?>
     <table>
         <thead>
             <tr>
                 <th>#</th>
-                <?php if ($rol !== 'hasta'): ?><th>Hasta</th><?php endif; ?>
-                <th>Doktor</th>
-                <th>Klinik</th>
-                <th>Hastane</th>
-                <th>Tarih</th>
-                <th>Saat</th>
-                <th>Durum</th>
+                <?php if ($rol !== 'hasta'): ?><th><?php echo __('hasta'); ?></th><?php endif; ?>
+                <th><?php echo __('doktor'); ?></th>
+                <th><?php echo __('klinik'); ?></th>
+                <th><?php echo __('hastane'); ?></th>
+                <th><?php echo __('tarih'); ?></th>
+                <th><?php echo __('saat'); ?></th>
+                <th><?php echo __('durum'); ?></th>
             </tr>
         </thead>
         <tbody>
@@ -108,18 +108,18 @@ try {
                 $durum = $r['durum'] ?? 'aktif';
                 if ($durum === 'iptal') {
                     $durum_cls = 'status-iptal';
-                    $durum_text = 'İptal';
+                    $durum_text = __('iptal');
                 } elseif ($gecmis) {
                     $durum_cls = 'status-gecmis';
-                    $durum_text = 'Geçmiş';
+                    $durum_text = __('gecti');
                 } else {
                     $durum_cls = 'status-aktif';
-                    $durum_text = 'Aktif';
+                    $durum_text = __('aktif');
                 }
             ?>
             <tr>
                 <td><?php echo $i++; ?></td>
-                <?php if ($rol !== 'hasta'): ?><td><?php echo htmlspecialchars($r['kullanici_adsoyad'] ?? 'Silinmiş'); ?></td><?php endif; ?>
+                <?php if ($rol !== 'hasta'): ?><td><?php echo htmlspecialchars($r['kullanici_adsoyad'] ?? __('silinmis')); ?></td><?php endif; ?>
                 <td><?php echo htmlspecialchars($r['randevu_doktoru']); ?></td>
                 <td><?php echo htmlspecialchars($r['randevu_klinik']); ?></td>
                 <td><?php echo htmlspecialchars($r['randevu_hastane']); ?></td>
@@ -133,7 +133,7 @@ try {
     <?php endif; ?>
 
     <div class="footer">
-        Hastane Otomasyonu &mdash; <?php echo date('Y'); ?> &mdash; Otomatik oluşturulmuş rapordur.
+        <?php echo __('site_title'); ?> &mdash; <?php echo date('Y'); ?> &mdash; <?php echo __('rapor_footer'); ?>
     </div>
 </body>
 </html>

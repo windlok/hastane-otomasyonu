@@ -11,7 +11,7 @@ try {
         exit;
     }
 } catch (PDOException $e) {
-    die("Veritabanı hatası: " . $e->getMessage());
+    die(__('hata_sistem') . ": " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>
@@ -19,7 +19,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hastane Otomasyonu - Profilim</title>
+    <title><?php echo __('site_title'); ?> - <?php echo __('profilim'); ?></title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,8 +27,8 @@ try {
 
     <div class="page-container">
         <div class="page-header">
-            <h2>Hesap Ayarları</h2>
-            <p>Profil bilgilerinizi görüntüleyebilir, güncelleyebilir veya şifrenizi değiştirebilirsiniz.</p>
+            <h2><?php echo __('hesap_ayarlari'); ?></h2>
+            <p><?php echo __('hesap_ayarlari_aciklama'); ?></p>
         </div>
 
         <?php 
@@ -57,7 +57,7 @@ try {
                     </div>
                     <div class="profile-info">
                         <h3><?php echo htmlspecialchars($kullanici['kullanici_adsoyad']); ?></h3>
-                        <p>TC Kimlik: <?php echo htmlspecialchars($kullanici['kullanici_tc']); ?></p>
+                        <p><?php echo __('tc_kimlik'); ?>: <?php echo htmlspecialchars($kullanici['kullanici_tc']); ?></p>
                     </div>
                 </div>
 
@@ -65,27 +65,27 @@ try {
                     <?php echo csrf_input(); ?>
                     
                     <div class="form-group">
-                        <label for="kullanici_tc_goster">TC Kimlik Numarası (Değiştirilemez)</label>
+                        <label for="kullanici_tc_goster"><?php echo __('tc_kimlik'); ?> (<?php echo __('degistirilemez'); ?>)</label>
                         <input type="text" id="kullanici_tc_goster" class="form-control" value="<?php echo htmlspecialchars($kullanici['kullanici_tc']); ?>" disabled>
                     </div>
 
                     <div class="form-group">
-                        <label for="kullanici_adsoyad">Ad Soyad *</label>
+                        <label for="kullanici_adsoyad"><?php echo __('ad_soyad'); ?> *</label>
                         <input type="text" id="kullanici_adsoyad" name="kullanici_adsoyad" class="form-control" value="<?php echo htmlspecialchars($kullanici['kullanici_adsoyad']); ?>" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="kullanici_telefon">Telefon Numarası</label>
+                        <label for="kullanici_telefon"><?php echo __('telefon'); ?></label>
                         <input type="tel" id="kullanici_telefon" name="kullanici_telefon" class="form-control" value="<?php echo htmlspecialchars($kullanici['kullanici_telefon']); ?>" placeholder="05xxxxxxxxx" pattern="[0-9]{10,11}">
                     </div>
 
                     <div class="form-group">
-                        <label for="kullanici_email">E-posta Adresi</label>
+                        <label for="kullanici_email"><?php echo __('eposta'); ?></label>
                         <input type="email" id="kullanici_email" name="kullanici_email" class="form-control" value="<?php echo htmlspecialchars($kullanici['kullanici_email']); ?>" placeholder="ornek@mail.com">
                     </div>
 
                     <div style="margin-top: 30px;">
-                        <button type="submit" name="hesap_guncelle" class="btn btn-primary">Bilgileri Güncelle</button>
+                        <button type="submit" name="hesap_guncelle" class="btn btn-primary"><?php echo __('bilgileri_guncelle'); ?></button>
                     </div>
                 </form>
             </div>
@@ -93,10 +93,10 @@ try {
             <!-- Şifre Değiştirme Kartı -->
             <div class="card">
                 <h3 class="card-title">
-                    <span class="card-icon">🔒</span> Şifre Değiştir
+                    <span class="card-icon">🔒</span> <?php echo __('sifre_degistir'); ?>
                 </h3>
                 <p style="color: var(--text-light); font-size: 14px; margin-bottom: 20px;">
-                    Şifrenizi değiştirmek istemiyorsanız bu alanları boş bırakabilirsiniz.
+                    <?php echo __('sifre_degistir_aciklama'); ?>
                 </p>
 
                 <form action="islem.php" method="post">
@@ -106,17 +106,17 @@ try {
                     <input type="hidden" name="kullanici_email" value="<?php echo htmlspecialchars($kullanici['kullanici_email'] ?? ''); ?>">
                     
                     <div class="form-group">
-                        <label for="mevcut_sifre">Mevcut Şifre</label>
+                        <label for="mevcut_sifre"><?php echo __('mevcut_sifre'); ?></label>
                         <input type="password" id="mevcut_sifre" name="mevcut_sifre" class="form-control" placeholder="Mevcut Şifreniz">
                     </div>
 
                     <div class="form-group">
-                        <label for="yeni_sifre">Yeni Şifre (En az 6 karakter)</label>
+                        <label for="yeni_sifre"><?php echo __('yeni_sifre'); ?> (<?php echo __('en_az_6_karakter'); ?>)</label>
                         <input type="password" id="yeni_sifre" name="yeni_sifre" class="form-control" placeholder="Yeni Şifreniz" minlength="6">
                     </div>
                     
                     <div style="margin-top: 20px;">
-                        <button type="submit" name="hesap_guncelle" class="btn btn-primary">Şifreyi Güncelle</button>
+                        <button type="submit" name="hesap_guncelle" class="btn btn-primary"><?php echo __('sifreyi_guncelle'); ?></button>
                     </div>
                 </form>
             </div>

@@ -55,8 +55,8 @@ try {
 
     <div class="page-container">
         <div class="page-header">
-            <h2>Hızlı Randevu Sistemi</h2>
-            <p>Doktor, tarih ve saat seçerek randevunuzu oluşturun. Dolu saatler otomatik olarak gizlenir.</p>
+            <h2><?php echo __('baslik_randevu_al'); ?></h2>
+            <p><?php echo __('randevu_al_aciklama'); ?></p>
         </div>
 
         <?php 
@@ -66,11 +66,11 @@ try {
 
         if ($duzenle_mode): ?>
         <div class="card" style="border-left: 4px solid var(--warning); margin-bottom: 20px; padding: 15px 20px;">
-            <strong style="color: var(--warning);">✏️ Düzenleme Modu</strong>
+            <strong style="color: var(--warning);">✏️ <?php echo __('duzenleme_modu'); ?></strong>
             <p style="margin: 5px 0 0 0; font-size: 14px;">
                 <strong><?php echo htmlspecialchars($duzenle_row['randevu_doktoru']); ?></strong> — 
-                <?php echo htmlspecialchars($duzenle_row['randevu_klinik']); ?> randevunuzu düzenliyorsunuz.
-                <a href="anasayfa.php" style="color: var(--primary);">İptal et</a>
+                <?php echo htmlspecialchars($duzenle_row['randevu_klinik']); ?> <?php echo __('randevu_duzenleniyor'); ?>
+                <a href="anasayfa.php" style="color: var(--primary);"><?php echo __('iptal_et'); ?></a>
             </p>
         </div>
         <?php endif; ?>
@@ -78,7 +78,7 @@ try {
         <div class="dashboard-grid">
             <div class="card">
                 <h3 class="card-title">
-                    <span class="card-icon">📋</span> <?php echo $duzenle_mode ? 'Randevu Düzenle' : 'Randevu Bilgileri'; ?>
+                    <span class="card-icon">📋</span> <?php echo $duzenle_mode ? __('randevu_duzenle') : __('randevu_bilgileri'); ?>
                 </h3>
                 <form action="islem.php" method="post" id="randevuForm">
                     <?php echo csrf_input(); ?>
@@ -87,9 +87,9 @@ try {
                     <?php endif; ?>
 
                     <div class="form-group">
-                        <label for="doktor_id">Doktor Seçin</label>
+                        <label for="doktor_id"><?php echo __('doktor_secin'); ?></label>
                         <select id="doktor_id" name="doktor_id" class="select-control" required>
-                            <option value="">Seçiniz...</option>
+                            <option value=""><?php echo __('seciniz'); ?></option>
                             <?php foreach ($doktorlar as $d): ?>
                             <option value="<?php echo (int) $d['doktor_id']; ?>"
                                 data-sehir="<?php echo htmlspecialchars($d['sehir']); ?>"
@@ -103,30 +103,30 @@ try {
                     </div>
 
                     <div id="doktorBilgi" class="doktor-info-box" style="display:none;">
-                        <p><strong>Şehir:</strong> <span id="infoSehir">-</span></p>
-                        <p><strong>Hastane:</strong> <span id="infoHastane">-</span></p>
-                        <p><strong>Klinik:</strong> <span id="infoKlinik">-</span></p>
+                        <p><strong><?php echo __('sehir'); ?>:</strong> <span id="infoSehir">-</span></p>
+                        <p><strong><?php echo __('hastane'); ?>:</strong> <span id="infoHastane">-</span></p>
+                        <p><strong><?php echo __('klinik'); ?>:</strong> <span id="infoKlinik">-</span></p>
                     </div>
 
                     <div class="form-group">
-                        <label for="tarih">Randevu Tarihi</label>
+                        <label for="tarih"><?php echo __('randevu_tarihi'); ?></label>
                         <input type="date" id="tarih" name="tarih" class="date-control" min="<?php echo date('Y-m-d'); ?>" required
                             <?php if ($duzenle_mode): ?>value="<?php echo htmlspecialchars($duzenle_row['randevu_tarih']); ?>"<?php endif; ?>>
                     </div>
 
                     <div class="form-group">
-                        <label for="saat">Randevu Saati</label>
+                        <label for="saat"><?php echo __('randevu_saati'); ?></label>
                         <select id="saat" name="saat" class="select-control" required disabled>
-                            <option value="">Önce doktor ve tarih seçin</option>
+                            <option value=""><?php echo __('once_doktor_ve_tarih_secin'); ?></option>
                         </select>
                         <small id="saatUyari" class="form-hint"></small>
                     </div>
 
                     <button type="submit" name="<?php echo $duzenle_mode ? 'randevu_guncelle' : 'randevu_kayit'; ?>" class="btn btn-primary">
-                        <?php echo $duzenle_mode ? 'Randevuyu Güncelle' : 'Randevuyu Kaydet'; ?>
+                        <?php echo $duzenle_mode ? __('randevuyu_guncelle') : __('randevuyu_kaydet'); ?>
                     </button>
                     <?php if ($duzenle_mode): ?>
-                    <a href="anasayfa.php" class="btn btn-secondary" style="margin-left: 8px;">İptal</a>
+                    <a href="anasayfa.php" class="btn btn-secondary" style="margin-left: 8px;"><?php echo __('iptal'); ?></a>
                     <?php endif; ?>
                 </form>
             </div>
@@ -134,19 +134,19 @@ try {
             <div>
                 <div class="card">
                     <h3 class="card-title">
-                        <span class="card-icon">💡</span> Önemli Bilgilendirme
+                        <span class="card-icon">💡</span> <?php echo __('onemli_bilgilendirme'); ?>
                     </h3>
                     <ul class="info-list">
-                        <li>Randevu saatleri 09:00 – 16:30 arası 30 dakikalık aralıklarla verilir.</li>
-                        <li>Bir doktorun aynı saatine yalnızca bir hasta randevu alabilir.</li>
-                        <li>Dolu saatler listede gösterilmez; başka bir saat seçmelisiniz.</li>
-                        <li>Randevunuzu iptal etmek için Randevularım sayfasını kullanın.</li>
+                        <li><?php echo __('randevu_saatleri_bilgi'); ?></li>
+                        <li><?php echo __('randevu_teklik_bilgi'); ?></li>
+                        <li><?php echo __('dolu_saat_bilgi'); ?></li>
+                        <li><?php echo __('iptal_bilgi'); ?></li>
                     </ul>
                 </div>
 
                 <div class="card">
                     <h3 class="card-title">
-                        <span class="card-icon">🕐</span> Çalışma Saatleri
+                        <span class="card-icon">🕐</span> <?php echo __('calisma_saatlerim'); ?>
                     </h3>
                     <div class="slot-preview">
                         <?php foreach (tum_saatler() as $s): ?>
@@ -181,12 +181,12 @@ try {
         const doktorId = doktorSelect.value;
         const tarih = tarihInput.value;
 
-        saatSelect.innerHTML = '<option value="">Yükleniyor...</option>';
+        saatSelect.innerHTML = '<option value=""><?php echo __('yukleniyor'); ?></option>';
         saatSelect.disabled = true;
         saatUyari.textContent = '';
 
         if (!doktorId || !tarih) {
-            saatSelect.innerHTML = '<option value="">Önce doktor ve tarih seçin</option>';
+            saatSelect.innerHTML = '<option value=""><?php echo __('once_doktor_ve_tarih_secin'); ?></option>';
             return;
         }
 
@@ -195,11 +195,11 @@ try {
             .then(data => {
                 saatSelect.innerHTML = '';
                 if (!data.saatler || data.saatler.length === 0) {
-                    saatSelect.innerHTML = '<option value="">Müsait saat yok</option>';
-                    saatUyari.textContent = 'Bu tarihte seçilen doktor için boş randevu saati bulunmuyor.';
+                    saatSelect.innerHTML = '<option value=""><?php echo __('musait_saat_yok'); ?></option>';
+                    saatUyari.textContent = '<?php echo __('musait_saat_yok_detay'); ?>';
                     return;
                 }
-                saatSelect.innerHTML = '<option value="">Saat seçin...</option>';
+                saatSelect.innerHTML = '<option value=""><?php echo __('saat_secin'); ?></option>';
                 data.saatler.forEach(s => {
                     const opt = document.createElement('option');
                     opt.value = s;
@@ -207,11 +207,11 @@ try {
                     saatSelect.appendChild(opt);
                 });
                 saatSelect.disabled = false;
-                saatUyari.textContent = data.saatler.length + ' müsait saat bulundu.';
+                saatUyari.textContent = data.saatler.length + ' <?php echo __('musait_saat_bulundu'); ?>';
             })
             .catch(() => {
-                saatSelect.innerHTML = '<option value="">Hata oluştu</option>';
-                saatUyari.textContent = 'Saatler yüklenemedi, sayfayı yenileyin.';
+                saatSelect.innerHTML = '<option value=""><?php echo __('hata_olustu'); ?></option>';
+                saatUyari.textContent = '<?php echo __('saatler_yuklenemedi'); ?>';
             });
     }
 

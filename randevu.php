@@ -13,7 +13,7 @@ try {
         exit;
     }
 } catch (PDOException $e) {
-    die("Veritabanı hatası: " . $e->getMessage());
+    die(__('hata_sistem') . ": " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>
@@ -21,7 +21,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hastane Otomasyonu - Randevularım</title>
+    <title><?php echo __('site_title'); ?> - <?php echo __('randevularim'); ?></title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -29,8 +29,8 @@ try {
 
     <div class="page-container">
         <div class="page-header">
-            <h2>Randevu Bilgileri</h2>
-            <p>Aldığınız randevuların listesi ve güncel randevu durumlarınız.</p>
+            <h2><?php echo __('randevu_bilgileri'); ?></h2>
+            <p><?php echo __('randevu_liste_aciklama'); ?></p>
         </div>
 
         <?php 
@@ -60,17 +60,17 @@ try {
             <div class="stat-card">
                 <div class="stat-icon">📅</div>
                 <div class="stat-value"><?php echo $toplam_randevu; ?></div>
-                <div class="stat-label">Toplam Randevu</div>
+                <div class="stat-label"><?php echo __('toplam_randevu'); ?></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">🔔</div>
                 <div class="stat-value" style="color: var(--accent);"><?php echo $aktif_randevu; ?></div>
-                <div class="stat-label">Yaklaşan Randevu</div>
+                <div class="stat-label"><?php echo __('aktif_randevu'); ?></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">⏳</div>
                 <div class="stat-value" style="color: var(--text-light);"><?php echo $gecmis_randevu; ?></div>
-                <div class="stat-label">Geçmiş Randevu</div>
+                <div class="stat-label"><?php echo __('gecmis_randevu'); ?></div>
             </div>
         </div>
 
@@ -84,7 +84,7 @@ try {
         <div class="card" style="padding: 20px 0;">
             <div style="padding: 0 30px 15px 30px;">
                 <h3 class="card-title" style="margin-bottom: 0; border: none; padding-bottom: 0;">
-                    <span class="card-icon">📋</span> Randevu Geçmişi
+                    <span class="card-icon">📋</span> <?php echo __('randevu_gecmisi'); ?>
                 </h3>
             </div>
             
@@ -92,16 +92,16 @@ try {
                     <table>
                         <thead>
                             <tr>
-                                <th>Hastane</th>
-                                <th>Klinik</th>
-                                <th>Doktor</th>
-                                <th>İl</th>
-                                <th>Tarih</th>
-                                <th>Saat</th>
-                                <th>Durum</th>
-                                <th>Not</th>
-                                <th>Reçete</th>
-                                <th style="width: 140px; text-align: center;">İşlem</th>
+                                <th><?php echo __('hastane'); ?></th>
+                                <th><?php echo __('klinik'); ?></th>
+                                <th><?php echo __('doktor'); ?></th>
+                                <th><?php echo __('sehir'); ?></th>
+                                <th><?php echo __('tarih'); ?></th>
+                                <th><?php echo __('saat'); ?></th>
+                                <th><?php echo __('durum'); ?></th>
+                                <th><?php echo __('notlar'); ?></th>
+                                <th><?php echo __('recete'); ?></th>
+                                <th style="width: 140px; text-align: center;"><?php echo __('islem'); ?></th>
                             </tr>
                         </thead>
                     <tbody>
@@ -114,7 +114,7 @@ try {
                             if ($sorgu->rowCount() == 0) {
                                 echo "<tr><td colspan='10' class='empty-state'>
                                     <span class='empty-icon'>📅</span>
-                                    <p>Henüz randevunuz bulunmamaktadır.</p>
+                                    <p><?php echo __('henuz_randevu_yok'); ?></p>
                                 </td></tr>";
                             }
 
@@ -138,13 +138,13 @@ try {
                                 $durum = $randevu['durum'] ?? 'aktif';
                                 if ($durum === 'iptal') {
                                     $durum_renk = '#e74c3c';
-                                    $durum_text = 'İptal Edildi';
+                                    $durum_text = __('iptal');
                                 } elseif (!$is_future) {
                                     $durum_renk = 'var(--text-muted)';
-                                    $durum_text = 'Gerçekleşti';
+                                    $durum_text = __('gerceklesti');
                                 } else {
                                     $durum_renk = 'var(--success)';
-                                    $durum_text = 'Aktif';
+                                    $durum_text = __('aktif');
                                 }
 
                                 echo "<tr>";
@@ -155,16 +155,16 @@ try {
                                 echo "<td>" . $tarih_format . "</td>";
                                 echo "<td><span class='slot-badge active'>" . $saat_format . "</span></td>";
                                 echo "<td style='text-align: center;'><span style='color: " . $durum_renk . "; font-weight: 600; font-size: 13px;'>" . $durum_text . "</span></td>";
-                                echo "<td style='text-align: center;'>" . ($not_var ? "<a href='randevu_not.php?randevu_id=" . $randevu['randevu_id'] . "' style='color:var(--primary);font-size:12px;'>📋 Gör</a>" : "<span style='color:var(--text-muted);font-size:11px;'>-</span>") . "</td>";
-                                echo "<td style='text-align: center;'>" . ($recete_var ? "<a href='recete_goruntule.php?recete_id=" . $recete_row['recete_id'] . "' style='color:var(--accent);font-size:12px;'>💊 Gör</a>" : "<span style='color:var(--text-muted);font-size:11px;'>-</span>") . "</td>";
+                                echo "<td style='text-align: center;'>" . ($not_var ? "<a href='randevu_not.php?randevu_id=" . $randevu['randevu_id'] . "' style='color:var(--primary);font-size:12px;'>📋 " . __('notu_gor') . "</a>" : "<span style='color:var(--text-muted);font-size:11px;'>-</span>") . "</td>";
+                                echo "<td style='text-align: center;'>" . ($recete_var ? "<a href='recete_goruntule.php?recete_id=" . $recete_row['recete_id'] . "' style='color:var(--accent);font-size:12px;'>💊 " . __('recete_gor') . "</a>" : "<span style='color:var(--text-muted);font-size:11px;'>-</span>") . "</td>";
                                 echo "<td style='text-align: center;'>";
                                 if ($is_future && $durum === 'aktif') {
                                     echo "<div style='display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;'>";
-                                    echo "<a href='anasayfa.php?duzenle=" . $randevu['randevu_id'] . "' class='btn btn-primary' style='padding: 6px 14px; font-size: 12px;'>Düzenle</a>";
-                                    echo "<form action='islem.php' method='post' style='display:inline;' onsubmit='return confirm(\"Randevunuzu iptal etmek istediğinize emin misiniz?\")'>";
+                                    echo "<a href='anasayfa.php?duzenle=" . $randevu['randevu_id'] . "' class='btn btn-primary' style='padding: 6px 14px; font-size: 12px;'>" . __('duzenle') . "</a>";
+                                    echo "<form action='islem.php' method='post' style='display:inline;' onsubmit='return confirm(\"" . __('iptal_onay') . "\")'>";
                                     echo "<input type='hidden' name='csrf_token' value='" . $_SESSION['csrf_token'] . "'>";
                                     echo "<input type='hidden' name='randevu_sil_id' value='" . $randevu['randevu_id'] . "'>";
-                                    echo "<button type='submit' name='randevu_sil' class='btn btn-danger' style='padding: 6px 14px; font-size: 12px;'>İptal</button>";
+                                    echo "<button type='submit' name='randevu_sil' class='btn btn-danger' style='padding: 6px 14px; font-size: 12px;'>" . __('iptal_et') . "</button>";
                                     echo "</form>";
                                     echo "</div>";
                                 } else {
@@ -174,7 +174,7 @@ try {
                                 echo "</tr>";
                             }
                         } catch (PDOException $e) {
-                            echo "<tr><td colspan='10' class='empty-state'>Veriler yüklenirken bir sorun oluştu.</td></tr>";
+                            echo "<tr><td colspan='10' class='empty-state'>" . __('veri_yukleme_hatasi') . "</td></tr>";
                         }
                         ?>
                     </tbody>

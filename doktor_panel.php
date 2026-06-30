@@ -49,7 +49,7 @@ try {
     $randevu_sorgu->execute($params);
     $randevular = $randevu_sorgu->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die('Veritabanı hatası');
+    die(__('hata_sistem'));
 }
 ?>
 <!DOCTYPE html>
@@ -58,14 +58,14 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Hastane Otomasyonu - Doktor Paneli</title>
+    <title><?php echo __('site_title'); ?> - <?php echo __('doktor_panel'); ?></title>
 </head>
 <body>
     <?php include 'navbar.php'; ?>
 
     <div class="page-container">
         <div class="page-header">
-            <h2>Doktor Paneli</h2>
+            <h2><?php echo __('doktor_panel'); ?></h2>
             <p><?php echo htmlspecialchars($doktor['kullanici_adsoyad']); ?> — <?php echo htmlspecialchars($doktor['klinik']); ?>, <?php echo htmlspecialchars($doktor['hastane']); ?></p>
         </div>
 
@@ -75,29 +75,29 @@ try {
             <div class="stat-card">
                 <div class="stat-icon">📅</div>
                 <div class="stat-value"><?php echo $toplam_randevu; ?></div>
-                <div class="stat-label">Toplam Aktif Randevu</div>
+                <div class="stat-label"><?php echo __('toplam_aktif_randevu'); ?></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">🩺</div>
                 <div class="stat-value" style="color: var(--accent);"><?php echo $bugun_randevu; ?></div>
-                <div class="stat-label">Bugünkü Hasta</div>
+                <div class="stat-label"><?php echo __('bugunku_hasta'); ?></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">🔔</div>
                 <div class="stat-value"><?php echo $yaklasan_randevu; ?></div>
-                <div class="stat-label">Yaklaşan Randevu</div>
+                <div class="stat-label"><?php echo __('yaklasan_randevu'); ?></div>
             </div>
         </div>
 
         <div class="filter-bar">
-            <a href="?filtre=bugun" class="filter-btn <?php echo $filtre === 'bugun' ? 'active' : ''; ?>">Bugün</a>
-            <a href="?filtre=yaklasan" class="filter-btn <?php echo $filtre === 'yaklasan' ? 'active' : ''; ?>">Yaklaşan</a>
-            <a href="?filtre=tumu" class="filter-btn <?php echo $filtre === 'tumu' ? 'active' : ''; ?>">Tümü</a>
-            <a href="?filtre=saatler" class="filter-btn <?php echo $filtre === 'saatler' ? 'active' : ''; ?>">🕐 Çalışma Saatlerim</a>
+            <a href="?filtre=bugun" class="filter-btn <?php echo $filtre === 'bugun' ? 'active' : ''; ?>"><?php echo __('bugun'); ?></a>
+            <a href="?filtre=yaklasan" class="filter-btn <?php echo $filtre === 'yaklasan' ? 'active' : ''; ?>"><?php echo __('yaklasan'); ?></a>
+            <a href="?filtre=tumu" class="filter-btn <?php echo $filtre === 'tumu' ? 'active' : ''; ?>"><?php echo __('tumu'); ?></a>
+            <a href="?filtre=saatler" class="filter-btn <?php echo $filtre === 'saatler' ? 'active' : ''; ?>">🕐 <?php echo __('calisma_saatlerim'); ?></a>
         </div>
 
         <?php if ($filtre === 'saatler'): 
-            $gunler = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+            $gunler = [__('pazartesi'), __('sali'), __('carsamba'), __('persembe'), __('cuma'), __('cumartesi'), __('pazar')];
             $calisma_saat = $db->prepare('SELECT gun, baslangic, bitis FROM doktor_calisma_saat WHERE doktor_id = ? ORDER BY gun');
             $calisma_saat->execute([$doktor_id]);
             $mevcut_saatler = [];
@@ -106,18 +106,18 @@ try {
             }
         ?>
         <div class="card" style="margin-top: 20px;">
-            <h3 class="card-title"><span class="card-icon">🕐</span> Çalışma Saatlerim</h3>
-            <p style="padding: 0 30px; color: var(--text-muted); font-size: 14px;">Haftanın her günü için çalışma saatlerinizi belirleyin. Randevu alırken sadece bu saat aralığındaki slotlar gösterilir.</p>
+            <h3 class="card-title"><span class="card-icon">🕐</span> <?php echo __('calisma_saatlerim'); ?></h3>
+            <p style="padding: 0 30px; color: var(--text-muted); font-size: 14px;"><?php echo __('calisma_saatleri_aciklama'); ?></p>
             <div style="padding: 0 30px 20px;">
                 <form action="islem.php" method="post">
                     <?php echo csrf_input(); ?>
                     <table style="width:100%;">
                         <thead>
                             <tr>
-                                <th style="text-align:left; padding:8px;">Gün</th>
-                                <th style="text-align:left; padding:8px;">Çalışıyor</th>
-                                <th style="text-align:left; padding:8px;">Başlangıç</th>
-                                <th style="text-align:left; padding:8px;">Bitiş</th>
+                                <th style="text-align:left; padding:8px;"><?php echo __('gun'); ?></th>
+                                <th style="text-align:left; padding:8px;"><?php echo __('calisiyor'); ?></th>
+                                <th style="text-align:left; padding:8px;"><?php echo __('baslangic'); ?></th>
+                                <th style="text-align:left; padding:8px;"><?php echo __('bitis'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -130,8 +130,8 @@ try {
                                 <td style="padding:8px;"><strong><?php echo $gunler[$i-1]; ?></strong></td>
                                 <td style="padding:8px;">
                                     <select name="calisma_gun_<?php echo $i; ?>" class="select-control" style="width:auto; min-width:80px;">
-                                        <option value="1" <?php echo $ms ? 'selected' : ''; ?>>Evet</option>
-                                        <option value="0" <?php echo !$ms ? 'selected' : ''; ?>>Hayır</option>
+                                        <option value="1" <?php echo $ms ? 'selected' : ''; ?>><?php echo __('evet'); ?></option>
+                                        <option value="0" <?php echo !$ms ? 'selected' : ''; ?>><?php echo __('hayir'); ?></option>
                                     </select>
                                 </td>
                                 <td style="padding:8px;">
@@ -144,7 +144,7 @@ try {
                             <?php endfor; ?>
                         </tbody>
                     </table>
-                    <button type="submit" name="doktor_saat_kaydet" class="btn btn-primary" style="margin-top:15px;">Saatleri Kaydet</button>
+                    <button type="submit" name="doktor_saat_kaydet" class="btn btn-primary" style="margin-top:15px;"><?php echo __('saatleri_kaydet'); ?></button>
                 </form>
             </div>
         </div>
@@ -153,7 +153,7 @@ try {
         <div class="card" style="padding: 20px 0;">
             <div style="padding: 0 30px 15px 30px;">
                 <h3 class="card-title" style="margin-bottom: 0; border: none; padding-bottom: 0;">
-                    <span class="card-icon">👥</span> Hasta Randevu Listesi
+                    <span class="card-icon">👥</span> <?php echo __('hasta_randevu_listesi'); ?>
                 </h3>
             </div>
 
@@ -161,15 +161,15 @@ try {
                 <table>
                     <thead>
                         <tr>
-                            <th>Tarih</th>
-                            <th>Saat</th>
-                            <th>Hasta Ad Soyad</th>
-                            <th>TC Kimlik</th>
-                            <th>Telefon</th>
-                            <th>E-posta</th>
-                            <th>Durum</th>
-                            <th style="width:100px;">Not</th>
-                            <th style="width:100px;">Reçete</th>
+                            <th><?php echo __('tarih'); ?></th>
+                            <th><?php echo __('saat'); ?></th>
+                            <th><?php echo __('hasta_ad_soyad'); ?></th>
+                            <th><?php echo __('tc_kimlik'); ?></th>
+                            <th><?php echo __('telefon'); ?></th>
+                            <th><?php echo __('eposta'); ?></th>
+                            <th><?php echo __('durum'); ?></th>
+                            <th style="width:100px;"><?php echo __('not'); ?></th>
+                            <th style="width:100px;"><?php echo __('recete'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -177,7 +177,7 @@ try {
                         <tr>
                             <td colspan="9" class="empty-state">
                                 <span class="empty-icon">📋</span>
-                                <p>Bu filtreye uygun randevu bulunmuyor.</p>
+                                <p><?php echo __('filtre_randevu_yok'); ?></p>
                             </td>
                         </tr>
                         <?php else: ?>
@@ -205,16 +205,16 @@ try {
                             <td><?php echo htmlspecialchars($r['kullanici_email'] ?: '-'); ?></td>
                             <td>
                                 <?php if ($gecmis): ?>
-                                <span class="badge badge-muted">Geçmiş</span>
+                                <span class="badge badge-muted"><?php echo __('gecti'); ?></span>
                                 <?php elseif ($r['randevu_tarih'] === $bugun): ?>
-                                <span class="badge badge-warning">Bugün</span>
+                                <span class="badge badge-warning"><?php echo __('bugun'); ?></span>
                                 <?php else: ?>
-                                <span class="badge badge-success">Bekliyor</span>
+                                <span class="badge badge-success"><?php echo __('bekliyor'); ?></span>
                                 <?php endif; ?>
                             </td>
                             <td>
                                 <a href="randevu_not.php?randevu_id=<?php echo $r['randevu_id']; ?>" class="btn btn-sm" style="background:#e3f2fd;color:#1565c0;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;text-decoration:none;display:inline-block;">
-                                    <?php echo $not_row ? '📝 Notu Gör' : '➕ Not Ekle'; ?>
+                                    <?php echo $not_row ? '📝 ' . __('notu_gor') : '➕ ' . __('not_ekle'); ?>
                                 </a>
                                 <?php if ($not_row): ?>
                                 <div style="font-size:10px;color:var(--text-muted);margin-top:3px;"><?php echo htmlspecialchars($not_row['ozet']); ?>...</div>
@@ -222,9 +222,9 @@ try {
                             </td>
                             <td>
                                 <?php if ($recete_row): ?>
-                                <a href="recete_goruntule.php?recete_id=<?php echo $recete_row['recete_id']; ?>" class="btn btn-sm" style="background:#fff3e0;color:#e65100;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;text-decoration:none;display:inline-block;">📋 Gör</a>
+                                <a href="recete_goruntule.php?recete_id=<?php echo $recete_row['recete_id']; ?>" class="btn btn-sm" style="background:#fff3e0;color:#e65100;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;text-decoration:none;display:inline-block;">📋 <?php echo __('recete_gor'); ?></a>
                                 <?php else: ?>
-                                <a href="recete.php?randevu_id=<?php echo $r['randevu_id']; ?>" class="btn btn-sm" style="background:#e3f2fd;color:#1565c0;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;text-decoration:none;display:inline-block;">➕ Reçete Yaz</a>
+                                <a href="recete.php?randevu_id=<?php echo $r['randevu_id']; ?>" class="btn btn-sm" style="background:#e3f2fd;color:#1565c0;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;text-decoration:none;display:inline-block;">➕ <?php echo __('recete_yaz'); ?></a>
                                 <?php endif; ?>
                             </td>
                         </tr>

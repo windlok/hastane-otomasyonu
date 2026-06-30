@@ -59,15 +59,15 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <meta http-equiv="refresh" content="30">
-    <title>Sıra Takip</title>
+    <title><?php echo __('site_title'); ?> - <?php echo __('baslik_sira'); ?></title>
 </head>
 <body>
     <?php include 'navbar.php'; ?>
 
     <div class="page-container">
         <div class="page-header">
-            <h2>🔢 Sıra Takip Sistemi</h2>
-            <p>Canlı sıra bilgisi — Sayfa her 30 saniyede bir yenilenir.</p>
+            <h2>🔢 <?php echo __('baslik_sira'); ?></h2>
+            <p><?php echo __('sira_takip_aciklama'); ?></p>
         </div>
 
         <?php if ($rol === 'hasta'): ?>
@@ -75,31 +75,31 @@ try {
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px; margin: 0 auto;">
             <div class="card" style="text-align:center; padding: 40px 20px;">
                 <div style="font-size:48px; color:var(--primary); margin-bottom:10px;">🔢</div>
-                <div style="font-size:14px; color:var(--text-muted); margin-bottom:5px;">Sıra Numaranız</div>
+                <div style="font-size:14px; color:var(--text-muted); margin-bottom:5px;"><?php echo __('sira_numarasi'); ?></div>
                 <div style="font-size:64px; font-weight:800; color:var(--primary);"><?php echo $sira_no; ?></div>
             </div>
             <div class="card" style="text-align:center; padding: 40px 20px;">
-                <div style="font-size:14px; color:var(--text-muted); margin-bottom:5px;">Önünüzdeki Hasta</div>
+                <div style="font-size:14px; color:var(--text-muted); margin-bottom:5px;"><?php echo __('onceki_hasta'); ?></div>
                 <div style="font-size:48px; font-weight:800; color:var(--accent);"><?php echo $sira_no - 1; ?></div>
-                <div style="font-size:13px; color:var(--text-muted); margin-top:10px;">Doktor: <strong><?php echo htmlspecialchars($bugun_randevu['doktor_ad']); ?></strong></div>
-                <div style="font-size:13px; color:var(--text-muted);">Randevu: <?php echo date('H:i', strtotime($bugun_randevu['randevu_saat'])); ?></div>
+                <div style="font-size:13px; color:var(--text-muted); margin-top:10px;"><?php echo __('doktor'); ?>: <strong><?php echo htmlspecialchars($bugun_randevu['doktor_ad']); ?></strong></div>
+                <div style="font-size:13px; color:var(--text-muted);"><?php echo __('randevu_saati'); ?>: <?php echo date('H:i', strtotime($bugun_randevu['randevu_saat'])); ?></div>
             </div>
         </div>
         <?php else: ?>
         <div class="card" style="text-align:center; padding:40px;">
-            <p style="font-size:16px; color:var(--text-muted);">Bugün için aktif randevunuz bulunmamaktadır.</p>
+            <p style="font-size:16px; color:var(--text-muted);"><?php echo __('bugun_randevu_yok'); ?></p>
         </div>
         <?php endif; ?>
 
         <?php elseif ($rol === 'doktor'): ?>
         <div class="card">
-            <h3 class="card-title"><span class="card-icon">🔢</span> Bugünkü Sıra Listesi</h3>
+            <h3 class="card-title"><span class="card-icon">🔢</span> <?php echo __('bugunku_sira_listesi'); ?></h3>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Sıra</th><th>Hasta</th><th>Saat</th><th>Durum</th></tr></thead>
+                    <thead><tr><th><?php echo __('sira_no'); ?></th><th><?php echo __('hasta'); ?></th><th><?php echo __('saat'); ?></th><th><?php echo __('durum'); ?></th></tr></thead>
                     <tbody>
                         <?php if (empty($bugun_randevular)): ?>
-                        <tr><td colspan="4" class="empty-state">Bugün randevu yok.</td></tr>
+                        <tr><td colspan="4" class="empty-state"><?php echo __('bugun_randevu_yok'); ?></td></tr>
                         <?php else: ?>
                         <?php $i = 1; foreach ($bugun_randevular as $r): ?>
                         <tr>
@@ -108,11 +108,11 @@ try {
                             <td><?php echo date('H:i', strtotime($r['randevu_saat'])); ?></td>
                             <td>
                                 <?php if (strtotime($r['randevu_tarih'] . ' ' . $r['randevu_saat']) < time()): ?>
-                                <span style="color:#e74c3c;font-weight:600;">Geçti</span>
+                                <span style="color:#e74c3c;font-weight:600;"><?php echo __('gecti'); ?></span>
                                 <?php elseif (strtotime($r['randevu_tarih'] . ' ' . $r['randevu_saat']) < time() + 1800): ?>
-                                <span style="color:var(--accent);font-weight:600;">Sıradaki</span>
+                                <span style="color:var(--accent);font-weight:600;"><?php echo __('siradaki'); ?></span>
                                 <?php else: ?>
-                                <span style="color:var(--success);font-weight:600;">Bekliyor</span>
+                                <span style="color:var(--success);font-weight:600;"><?php echo __('bekliyor'); ?></span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -124,7 +124,7 @@ try {
         </div>
         <?php endif; ?>
         <div style="text-align:center; margin-top: 20px;">
-            <a href="sira_sorgu.php" style="color:var(--primary); font-size:13px;">🔍 TC ile sıra sorgula</a>
+            <a href="sira_sorgu.php" style="color:var(--primary); font-size:13px;">🔍 <?php echo __('sira_sorgula'); ?></a>
         </div>
     </div>
 </body>
