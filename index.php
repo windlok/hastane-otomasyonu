@@ -43,6 +43,8 @@ $aktif_tip = isset($_GET['tip']) && $_GET['tip'] === 'doktor' ? 'doktor' : 'hast
                 <button type="submit" class="btn btn-primary" name="giris_yap">Giriş Yap</button>
                 <div style="text-align: center; margin-top: 12px;">
                     <a href="sifre_sifirlama.php" style="color: var(--primary); font-size: 13px;">Şifremi Unuttum</a>
+                    <span style="color: var(--text-muted); margin: 0 6px;">|</span>
+                    <a href="sira_sorgu.php" style="color: var(--primary); font-size: 13px;">Sıra Sorgula</a>
                 </div>
             </form>
 

@@ -123,6 +123,9 @@ try {
             </div>
         </div>
         <?php endif; ?>
+        <div style="text-align:center; margin-top: 20px;">
+            <a href="sira_sorgu.php" style="color:var(--primary); font-size:13px;">🔍 TC ile sıra sorgula</a>
+        </div>
     </div>
 </body>
 </html>
