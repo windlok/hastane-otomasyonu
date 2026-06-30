@@ -5,13 +5,26 @@ if (isset($_SESSION['kullanici_rol']) && $_SESSION['kullanici_rol'] === 'admin')
     exit;
 }
 
+global $lang;
+$dil = isset($_COOKIE['dil']) && in_array($_COOKIE['dil'], ['tr','en'], true) ? $_COOKIE['dil'] : 'tr';
+$dil_dosyasi = __DIR__ . "/../lang/$dil.php";
+if (file_exists($dil_dosyasi)) {
+    include $dil_dosyasi;
+} else {
+    include __DIR__ . "/../lang/tr.php";
+}
+function __($key) {
+    global $lang;
+    return isset($lang[$key]) ? $lang[$key] : $key;
+}
+
 $hata = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_giris'])) {
     $username = isset($_POST['kullanici_adi']) ? trim($_POST['kullanici_adi']) : '';
     $password = isset($_POST['sifre']) ? $_POST['sifre'] : '';
 
     if (!$username || !$password) {
-        $hata = 'Kullanıcı adı ve şifre giriniz.';
+        $hata = __('admin_giris_hata_bos');
     } else {
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=3306;dbname=hastane_otomasyonu;charset=utf8mb4', 'root', '', [
@@ -31,10 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_giris'])) {
                 header('location:../admin_panel.php');
                 exit;
             } else {
-                $hata = 'Kullanıcı adı veya şifre hatalı!';
+                $hata = __('admin_giris_hata_yanlis');
             }
         } catch (PDOException $e) {
-            $hata = 'Sistem hatası oluştu.';
+            $hata = __('sistem_hatasi');
         }
     }
 }
@@ -44,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_giris'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Girişi - Hastane Otomasyonu</title>
+    <title><?php echo __('admin_giris'); ?> - <?php echo __('site_title'); ?></title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1923; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
@@ -70,8 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_giris'])) {
     <div class="login-card">
         <div class="logo">
             <div class="logo-icon">🔧</div>
-            <h1>Admin Paneli</h1>
-            <p>Hastane Otomasyonu Yönetim</p>
+            <h1><?php echo __('admin_paneli_baslik'); ?></h1>
+            <p><?php echo __('admin_yonetim'); ?></p>
         </div>
 
         <?php if ($hata): ?>
@@ -80,19 +93,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_giris'])) {
 
         <form method="post">
             <div class="form-group">
-                <label for="kullanici_adi">Kullanıcı Adı</label>
-                <input type="text" id="kullanici_adi" name="kullanici_adi" placeholder="Kullanıcı adınız" required autocomplete="off">
+                <label for="kullanici_adi"><?php echo __('kullanici_adi'); ?></label>
+                <input type="text" id="kullanici_adi" name="kullanici_adi" placeholder="<?php echo __('admin_giris_placeholder_kadi'); ?>" required autocomplete="off">
             </div>
             <div class="form-group">
-                <label for="sifre">Şifre</label>
-                <input type="password" id="sifre" name="sifre" placeholder="Şifreniz" required>
+                <label for="sifre"><?php echo __('sifre'); ?></label>
+                <input type="password" id="sifre" name="sifre" placeholder="<?php echo __('admin_giris_placeholder_sifre'); ?>" required>
             </div>
-            <button type="submit" name="admin_giris" class="btn">Giriş Yap</button>
+            <button type="submit" name="admin_giris" class="btn"><?php echo __('giris_yap'); ?></button>
         </form>
 
         <hr class="divider">
         <div class="footer">
-            <a href="../index.php">← Ana Giriş Sayfasına Dön</a>
+            <a href="../index.php">← <?php echo __('ana_giris_don'); ?></a>
         </div>
     </div>
 </body>

@@ -1,5 +1,18 @@
 <?php
 session_start();
+global $lang;
+$dil = isset($_COOKIE['dil']) && in_array($_COOKIE['dil'], ['tr','en'], true) ? $_COOKIE['dil'] : 'tr';
+$dil_dosyasi = __DIR__ . "/lang/$dil.php";
+if (file_exists($dil_dosyasi)) {
+    include $dil_dosyasi;
+} else {
+    include __DIR__ . "/lang/tr.php";
+}
+function __($key) {
+    global $lang;
+    return isset($lang[$key]) ? $lang[$key] : $key;
+}
+
 $hata = '';
 $sonuc = null;
 
@@ -7,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sira_sorgula'])) {
     $tc = isset($_POST['tc']) ? trim($_POST['tc']) : '';
 
     if (!preg_match('/^[0-9]{11}$/', $tc)) {
-        $hata = 'Geçerli 11 haneli TC Kimlik numarası girin.';
+        $hata = __('sira_sorgu_hata_tc');
     } else {
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=3306;dbname=hastane_otomasyonu;charset=utf8mb4', 'root', '', [
@@ -27,9 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sira_sorgula'])) {
             $randevu = $sorgu->fetch();
 
             if (!$randevu) {
-                $hata = 'Bugün ve sonrası için aktif randevunuz bulunamadı.';
+                $hata = __('sira_sorgu_hata_bulunamadi');
             } else {
-                // Sıra bilgisi
                 $onceki = $db->prepare("SELECT COUNT(*) FROM randevu WHERE doktor_id = ? AND randevu_tarih = ? AND randevu_saat < ? AND durum = 'aktif'");
                 $onceki->execute([$randevu['doktor_id'], $randevu['randevu_tarih'], $randevu['randevu_saat']]);
                 $sira_once = $onceki->fetchColumn();
@@ -38,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sira_sorgula'])) {
                 $toplam->execute([$randevu['doktor_id'], $randevu['randevu_tarih']]);
                 $toplam_bugun = $toplam->fetchColumn();
 
-                // Anonim isim
                 $ad_soyad = $randevu['kullanici_adsoyad'];
                 $parcalar = explode(' ', $ad_soyad, 2);
                 $ad = $parcalar[0];
@@ -60,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sira_sorgula'])) {
                 ];
             }
         } catch (PDOException $e) {
-            $hata = 'Sistem hatası oluştu.';
+            $hata = __('sira_sorgu_hata_sistem');
         }
     }
 }
@@ -70,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sira_sorgula'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sıra Sorgulama</title>
+    <title><?php echo __('sira_sorgu_baslik'); ?></title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1923; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -115,8 +126,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sira_sorgula'])) {
         <div class="card">
             <div class="logo">
                 <div class="logo-icon">🔢</div>
-                <h1>Sıra Sorgulama</h1>
-                <p>TC Kimlik numaranız ile sıranızı öğrenin</p>
+                <h1><?php echo __('sira_sorgu_baslik'); ?></h1>
+                <p><?php echo __('sira_sorgu_aciklama'); ?></p>
             </div>
 
             <?php if ($hata): ?>
@@ -125,48 +136,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sira_sorgula'])) {
 
             <form method="post">
                 <div class="form-group">
-                    <label for="tc">TC Kimlik Numarası</label>
-                    <input type="text" id="tc" name="tc" placeholder="11111111110" maxlength="11" required pattern="\d{11}" inputmode="numeric" autocomplete="off">
+                    <label for="tc"><?php echo __('sira_sorgu_tc_label'); ?></label>
+                    <input type="text" id="tc" name="tc" placeholder="<?php echo __('sira_sorgu_tc_placeholder'); ?>" maxlength="11" required pattern="\d{11}" inputmode="numeric" autocomplete="off">
                 </div>
-                <button type="submit" name="sira_sorgula" class="btn">Sıramı Sorgula</button>
+                <button type="submit" name="sira_sorgula" class="btn"><?php echo __('sira_sorgu_button'); ?></button>
             </form>
 
             <div class="footer">
-                <a href="index.php">← Ana Sayfaya Dön</a>
+                <a href="index.php">← <?php echo __('sira_sorgu_ana_sayfa'); ?></a>
             </div>
         </div>
 
         <?php if ($sonuc): ?>
         <div class="result-card">
             <div class="patient-name"><?php echo htmlspecialchars($sonuc['anonim_ad'] . ' ' . $sonuc['anonim_soyad']); ?></div>
-            <div class="patient-label">HASTA</div>
+            <div class="patient-label"><?php echo __('sira_sorgu_hasta_label'); ?></div>
 
             <div class="big-number">
                 <div class="number">#<?php echo $sonuc['sira_no']; ?></div>
-                <div class="number-label">Sıra Numaranız (Toplam <?php echo $sonuc['toplam']; ?> hasta)</div>
+                <div class="number-label"><?php echo __('sira_sorgu_sira_no'); ?> (<?php echo __('sira_sorgu_toplam'); ?> <?php echo $sonuc['toplam']; ?> <?php echo __('sira_sorgu_hasta'); ?>)</div>
             </div>
 
             <div class="info-grid">
                 <div class="info-item">
-                    <div class="label">Doktor</div>
+                    <div class="label"><?php echo __('sira_sorgu_doktor'); ?></div>
                     <div class="value doctor"><?php echo htmlspecialchars($sonuc['doktor']); ?></div>
                 </div>
                 <div class="info-item">
-                    <div class="label">Bölüm</div>
+                    <div class="label"><?php echo __('sira_sorgu_bolum'); ?></div>
                     <div class="value clinic"><?php echo htmlspecialchars($sonuc['klinik']); ?></div>
                 </div>
                 <div class="info-item">
-                    <div class="label">Randevu Tarihi</div>
+                    <div class="label"><?php echo __('sira_sorgu_tarih'); ?></div>
                     <div class="value"><?php echo $sonuc['tarih']; ?></div>
                 </div>
                 <div class="info-item">
-                    <div class="label">Randevu Saati</div>
+                    <div class="label"><?php echo __('sira_sorgu_saat'); ?></div>
                     <div class="value time"><?php echo $sonuc['saat']; ?></div>
                 </div>
             </div>
 
             <div class="ahead">
-                Önünüzde <strong><?php echo $sonuc['sira_once']; ?></strong> hasta var
+                <?php echo __('sira_sorgu_once_on'); ?><strong><?php echo $sonuc['sira_once']; ?></strong><?php echo __('sira_sorgu_once_arka'); ?>
             </div>
         </div>
         <?php endif; ?>

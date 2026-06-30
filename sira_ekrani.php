@@ -1,4 +1,17 @@
 <?php
+global $lang;
+$dil = isset($_COOKIE['dil']) && in_array($_COOKIE['dil'], ['tr','en'], true) ? $_COOKIE['dil'] : 'tr';
+$dil_dosyasi = __DIR__ . "/lang/$dil.php";
+if (file_exists($dil_dosyasi)) {
+    include $dil_dosyasi;
+} else {
+    include __DIR__ . "/lang/tr.php";
+}
+function __($key) {
+    global $lang;
+    return isset($lang[$key]) ? $lang[$key] : $key;
+}
+
 try {
     $db = new PDO('mysql:host=127.0.0.1;port=3306;dbname=hastane_otomasyonu;charset=utf8mb4', 'root', '', [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -48,7 +61,7 @@ function anonim_ad($adsoyad) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="15">
-    <title>Sıra Ekranı - Hastane Otomasyonu</title>
+    <title><?php echo __('sira_ekrani_baslik'); ?> - <?php echo __('site_title'); ?></title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0e14; color: #fff; min-height: 100vh; padding: 20px; }
@@ -79,14 +92,14 @@ function anonim_ad($adsoyad) {
 </head>
 <body>
     <div class="header">
-        <h1>🏥 Sıra Ekranı</h1>
-        <p><?php echo date('d.m.Y l'); ?> — Sayfa 15 saniyede bir yenilenir</p>
+        <h1>🏥 <?php echo __('sira_ekrani_baslik'); ?></h1>
+        <p><?php echo date('d.m.Y l'); ?> — <?php echo __('sira_ekrani_aciklama'); ?></p>
     </div>
 
     <?php if (empty($doktorlar)): ?>
     <div class="empty">
         <h2>📋</h2>
-        <p>Bugün için randevu bulunmamaktadır.</p>
+        <p><?php echo __('sira_ekrani_bugun_yok'); ?></p>
     </div>
     <?php else: ?>
     <div class="grid">
@@ -99,7 +112,7 @@ function anonim_ad($adsoyad) {
                 <span class="doctor-clinic"><?php echo htmlspecialchars($d['klinik']); ?></span>
             </div>
             <?php if (empty($randevular)): ?>
-            <div class="no-patients">Hasta yok</div>
+            <div class="no-patients"><?php echo __('sira_ekrani_hasta_yok'); ?></div>
             <?php else: ?>
             <?php $sira = 1; foreach ($randevular as $r):
                 $gecmis = strtotime($r['randevu_tarih'] . ' ' . $r['randevu_saat']) < time();
@@ -110,7 +123,7 @@ function anonim_ad($adsoyad) {
                 <div class="q-name"><?php echo htmlspecialchars(anonim_ad($r['kullanici_adsoyad'])); ?></div>
                 <div class="q-time"><?php echo $r['saat_str']; ?></div>
                 <div class="q-status <?php echo $gecmis ? 'status-gecti' : ($siradaki ? 'status-siradaki' : 'status-bekliyor'); ?>">
-                    <?php echo $gecmis ? 'GEÇTİ' : ($siradaki ? 'SIRADA' : ''); ?>
+                    <?php echo $gecmis ? __('sira_ekrani_gecti') : ($siradaki ? __('sira_ekrani_sirada') : ''); ?>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -121,8 +134,8 @@ function anonim_ad($adsoyad) {
     <?php endif; ?>
 
     <div class="footer">
-        Hastane Otomasyonu &mdash; Sıra Takip Sistemi &mdash; <?php echo date('Y'); ?>
-        <div class="refresh-note">🔃 Sayfa otomatik yenilenir</div>
+        <?php echo __('sira_ekrani_footer'); ?> &mdash; <?php echo date('Y'); ?>
+        <div class="refresh-note">🔃 <?php echo __('sira_ekrani_refresh'); ?></div>
     </div>
 </body>
 </html>

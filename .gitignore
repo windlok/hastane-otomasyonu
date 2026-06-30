@@ -9,6 +9,7 @@
 Thumbs.db
 .DS_Store
 desktop.ini
+*.png
 
 # Arşiv
 *.rar
