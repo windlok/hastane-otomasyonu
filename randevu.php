@@ -112,7 +112,7 @@ try {
                             $sorgu->execute([$kullanici['kullanici_id']]);
                             
                             if ($sorgu->rowCount() == 0) {
-                                echo "<tr><td colspan='9' class='empty-state'>
+                                echo "<tr><td colspan='10' class='empty-state'>
                                     <span class='empty-icon'>📅</span>
                                     <p>Henüz randevunuz bulunmamaktadır.</p>
                                 </td></tr>";
@@ -174,7 +174,7 @@ try {
                                 echo "</tr>";
                             }
                         } catch (PDOException $e) {
-                            echo "<tr><td colspan='7' class='empty-state'>Veriler yüklenirken bir sorun oluştu.</td></tr>";
+                            echo "<tr><td colspan='10' class='empty-state'>Veriler yüklenirken bir sorun oluştu.</td></tr>";
                         }
                         ?>
                     </tbody>

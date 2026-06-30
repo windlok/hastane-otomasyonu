@@ -175,7 +175,7 @@ try {
                     <tbody>
                         <?php if (empty($randevular)): ?>
                         <tr>
-                            <td colspan="7" class="empty-state">
+                            <td colspan="9" class="empty-state">
                                 <span class="empty-icon">📋</span>
                                 <p>Bu filtreye uygun randevu bulunmuyor.</p>
                             </td>
